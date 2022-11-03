@@ -637,7 +637,7 @@ apa_table(unidimension2, caption = "Unidimensionality of each Mindfulness facet"
 We fitted each facet to the IRT framework using "graded response" model [@samejima1969estimation]. In IRT we gather evidence on item difficulty and discrimination, item-fit, person-fit, and item and scale information. At first we assessed item-fit using  RMSEA values obtained associated with S-$\chi^2$ statistic. We discarded items that indicated a bad fit (RMSEA >.06) to the model and refitted the revised models. Table@\ref(tab:tab-itemfit) summarizes the item-fit indices for each five facets. Item 2 in describe facet and item14 in nonjudge facet appeared as  misfit to the model thus discarded. In the refitted model of describe facet two more items (item 12 & 16) (Supplementary Table-----) appeared as misfit thus discarded.
 
 ```{r IRT1, include =F}
-
+#First iteration
 #Define Model
 observe <- IRT %>% 
   dplyr::select(item1,  item6 , item11 , item15 , item20 , item26 , item31 , item36)
@@ -722,7 +722,7 @@ nonreact.item_misfits <- subset(nonreact.item.fit, RMSEA.S_X2 >= .06)
 
 #Creating Item fit table
 
-all.itemfit <- rbind(observe.item.fit, describe.item.fit,awareness.item.fit,awareness.item.fit,nonjudge.item.fit,nonreact.item.fit )
+all.itemfit <- rbind(observe.item.fit, describe.item.fit,awareness.item.fit,nonjudge.item.fit,nonreact.item.fit )
 al.itemfit <- as.data.frame(all.itemfit)
 
 all.itemfit.selected <- all.itemfit[,c(1,11,12,13,14)]
@@ -736,7 +736,9 @@ apa_table(all.itemfit.selected,landscape = F, caption = "Item fit Statistics")
 ```
 
 ```{r IRT2, include =F}
-#Define revised  model based on item fit
+#Second Iteration
+# Refitted model excluding Item 2 in "describe" facet and item14 in "nonjudge" facet 
+
 
 observe.1 <- IRT %>% 
   dplyr::select(item1,  item6 , item11 , item15 , item20 , item26 , item31 , item36)
@@ -789,7 +791,7 @@ awareness.item_misfits.1 <- subset(awareness.item.fit.2, RMSEA.S_X2 >= .06)
 nonjudge.item_misfits.1 <- subset(nonjudge.item.fit.2, RMSEA.S_X2 >= .06)
 nonreact.item_misfits.1 <- subset(nonreact.item.fit.2, RMSEA.S_X2 >= .06)
 
-all.itemfit.sa <- rbind(observe.item.fit.2, describe.item.fit.2,awareness.item.fit.2,awareness.item.fit.2,nonjudge.item.fit.2,nonreact.item.fit.2 )
+all.itemfit.sa <- rbind(observe.item.fit.2, describe.item.fit.2,awareness.item.fit.2,nonjudge.item.fit.2,nonreact.item.fit.2 )
 
 
 all.itemfit.selected.sa <- all.itemfit.sa[,c(1,11,12,13,14)]
@@ -802,7 +804,16 @@ colnames(all.itemfit.selected.sa) = c("Items",  "S-X2", "df",  "RMSEA", "p" )
 
 ```
 
+```{r tabitemfit, results='asis'}
+apa_table(all.itemfit.selected.sa,landscape = F, caption = "Item fit Statistics: SA")
+```
+
+
 ```{r IRT3, include =F}
+#Third Iteration
+#Define revised  model based on item fit
+# Refitted model excluding Item 12 and 16
+
 #Define Model
 observe.refit <- IRT %>% 
   dplyr::select(item1,  item6 , item11 , item15 , item20 , item26 , item31 , item36)
@@ -903,7 +914,7 @@ IRT.details <- cbind(round(items.quality,2), round(all.itemfit.selected.fa,2))
 
 observe.IIC.1 <- plot(observe.fit.2, type = "infotrace", facet =T, main = "Observe Item Information Curve")
 describe.IIC.1 <- plot(describe.fit.2, type = "infotrace", facet =T, main = "Describe Item Information Curve")
-awareness.IIC.1 <- plot(awareness.fit.2, type = "infotrace", facet =T, main = "Awareness Item Information Curve")
+awareness.IIC.1 <- plot(awareness.fit.2, type = "infotrace", facet =T, main = "Actwar Item Information Curve")
 nonjudge.IIC.1 <- plot(nonjudge.fit.2, type = "infotrace", facet =T, main = "Nonjudge Item Information Curve")
 nonreact.IIC.1 <- plot(nonreact.fit.2, type = "infotrace", facet =T, main = "Nonreact Item Information Curve")
 
@@ -913,15 +924,20 @@ nonreact.IIC.1 <- plot(nonreact.fit.2, type = "infotrace", facet =T, main = "Non
 ```
 
 
-```{r OCC-irt3, include=F}
-##Option charecteristics curve
-observe.OCC <- plot(observe.fit.2, type = "trace", facet =T, main = "Observe")
-describe.OCC <- plot(describe.fit.2, type = "trace", facet =T, main = "Describe")
-awareness.OCC <- plot(awareness.fit.2, type = "trace", facet =T, main = "Actwar")
-nonjudge.OCC<- plot(nonjudge.fit.2, type = "trace", facet =T, main = "Nonjudge")
-nonreact.OCC<- plot(nonreact.fit.2, type = "trace", facet =T, main = "Nonreact")
 
+```{r OCC-irt3,  include=FALSE}
+#general inspection of Option charecteristics curve based on the third iteration
+
+
+observe.OCC <- plot(observe.fit.2, type = "trace", facet =T, main = "Observe OCC")
+describe.OCC <- plot(describe.fit.2, type = "trace", facet =T, main = "Describe OCC")
+awareness.OCC <- plot(awareness.fit.2, type = "trace", facet =T, main = "Actwar OCC")
+nonjudge.OCC<- plot(nonjudge.fit.2, type = "trace", facet =T, main = "Nonjudge OCC")
+nonreact.OCC<- plot(nonreact.fit.2, type = "trace", facet =T, main = "Nonreact OCC")
+
+#38, 22, 39, 3, and 17 are problematic and removed
 ```
+
 
 
 ```{r ggitem-info-all-plots}
@@ -1478,8 +1494,9 @@ all_icc_2 <- plot_grid(all_icc, icc.legend, ncol = 1, rel_heights   = c(1, .12))
 
 ```
 
-
 ```{r IRT4, include =F}
+#Final model
+#(without item 04, 22, 38, 39, 03,17)
 #Define Model
 observe.refit.2 <- IRT %>% 
   dplyr::select(item1,  item6 , item11 , item15 , item20 , item26 , item31 , item36)
@@ -1488,9 +1505,9 @@ describe.refit.2 <- IRT %>%
 awareness.refit.2 <- IRT %>% 
   dplyr::select(Ritem5 , Ritem8 , Ritem13 , Ritem18 , Ritem23 , Ritem28 , Ritem34)
 nonjudge.refit.2 <- IRT %>% 
-  dplyr::select( Ritem10 , Ritem25 , Ritem30, Ritem35 )
+  dplyr::select( Ritem10 ,  Ritem25 , Ritem30, Ritem35 )
 nonreact.refit.2 <- IRT %>% 
-  dplyr::select(item4 , item9 , item19 , item21 , item24 , item29 , item33)
+  dplyr::select(item9 , item19 , item21 , item24 , item29 , item33)
 
 
 
@@ -1578,14 +1595,23 @@ IRT.details.1 <- cbind(round(items.quality.2,2), round(all.itemfit.selected.fa.1
 
 ```
 
-Table \@ref(tab:IRT-tab1) summarizes the item discrimination and discrimination parameters of retained items with their item fit indices. @RN1275 suggested the optimum range of item discrimination,a is .5 $\leq$ a $\leq$ 2. All items except item:38 and 39 were within this suggested limits. 
+Table \@ref(tab:IRT-tab1) summarizes the item discrimination and difficulty parameters of retained items. @RN1275 suggested the optimum range of item discrimination (a)  is .5 $\leq$ a $\leq$ 2. All items except items 38 and 39 were within this suggested limits. Item information curve (IIC)  indicates the amount of information an item carry along the latent trait continuum (supplimentary Figure--------). We identified 5 items (04,22, 38, 39, 03) with relatively flat curve  (I($\theta$)<.20). Option Characteristics Curves (OCC) showed the probability of endorsing each response choice (y-axis) as a function of underlying latent trait( x-axis). The OCCs (Figure \@ref(fig:fig-occ)) showed each item had appropriately monotonically ordered response options. For all items except items 38,22, 39, 3, and 17,  each of the response options are likely to be selected for some level of underlying level of mindfulness. As such  we discarded six items for being outside the suggested item discrimination  guidelines, inappropriate monotonocity  and/or relatively flat information curve (item 22, 38, 39, 04, 3,17) and refitted the revised models.
 
 ```{r item-categorization, include =F}
+
+#Item discrimination
 very.low <- sum(IRT.details.1$a >=.10 & IRT.details.1$a<.34, na.rm=TRUE)
 low <- sum(IRT.details.1$a >=.34 & IRT.details.1$a<.64, na.rm=TRUE)
 moderate <- sum(IRT.details.1$a >=.64 & IRT.details.1$a<1.34, na.rm=TRUE)
 high <- sum(IRT.details.1$a >=1.34 & IRT.details.1$a<1.69, na.rm=TRUE)
 very.high <- sum(IRT.details.1$a >=1.69, na.rm=TRUE)
+
+##Difficulty
+very_easy_items <- IRT.details.1[which(IRT.details.1$b< -2),]
+easy_items <- IRT.details.1[which(-2<IRT.details.1$b &  IRT.details.1$b<= -0.50),]
+medium_items <-IRT.details.1[which(-0.51<IRT.details.1$b &  IRT.details.1$b<= 0.50),]
+hard_items <-IRT.details.1[which(.51<IRT.details.1$b &  IRT.details.1$b<= 2),]
+very_hard_items <-IRT.details.1[which(IRT.details.1$b> 2),]
 
 ```
 

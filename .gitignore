@@ -29,3 +29,11 @@ vignettes/*.pdf
 .DS_Store
 Mindfulness-paper.fff
 .Rprofile
+Mindfulness-paper_files/
+Mindfulness-paper_cache/
+*.fff
+*.log
+*.tex
+*.ttt
+Mindfulness paper_old.Rmd
+paper_files/

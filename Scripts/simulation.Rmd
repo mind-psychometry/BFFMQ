@@ -1,0 +1,62 @@
+---
+title: "Simulation"
+output: html_document
+---
+
+```{r samplesizeIRT, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE, results='hide', width=60}
+library(SimDesign)
+set.seed(222)
+m <-  8 # item number
+n <- c(100, 200, 300, 400, 450, 500, 550) # sample size
+design <- as.data.frame(n)
+
+
+irtGenerate <- function(condition, fixed_objects = FALSE) {
+  n <- condition$n
+  
+  a <- matrix(rlnorm(m,.2,.3))
+  diffs <- t(apply(matrix(runif(m*4, .3, 1), m), 1, cumsum))
+  diffs <- -(diffs - rowMeans(diffs))
+  diffs<- diffs + rnorm(m)
+  d <- diffs
+  dat <- simdata(a, d, n, itemtype = 'graded')
+  return(dat)
+}
+
+irtAnalyze <- function(condition, dat, fixed_objects = NULL) {
+  mod <- mirt(dat, 1, itemtype = 'graded', verbose = FALSE)
+  simpars <- coef(mod, simplify = TRUE, digits = Inf)$items
+  irtpars <- c(a = simpars[,1], d = simpars[,2])
+  return(irtpars)
+}
+
+irtSummarize <- function(condition, results,
+                         fixed_objects = NULL) {
+  apop <- fixed_objects['alpha', ]
+  dpop <- fixed_objects['d', ]
+  simrmse <- RMSE(results, c(apop, dpop))
+  out <- c(RMSE = simrmse)
+  return(out)
+}
+
+
+simres <- runSimulation(design, replications = 100,
+                        parallel = TRUE, generate = irtGenerate,
+                        analyse = irtAnalyze, summarise = irtSummarize,
+                        packages = c('mirt'))
+simres
+
+
+colind <- grep(".a.", colnames(simres))
+sima <- as.data.frame(simres[, colind])
+nvec <- as.numeric(simres$n)
+
+meanRMSE <- rowMeans(sima)
+names(meanRMSE) <- n
+round(meanRMSE, 2)
+matplot(nvec, log(sima), type = "l", col = 1, lty = 1,
+        ylab = "log(RMSE)", xlab = "sample size",
+        main = "Graded Response Model", xaxt = "n")
+axis(1, at = nvec)
+```
+

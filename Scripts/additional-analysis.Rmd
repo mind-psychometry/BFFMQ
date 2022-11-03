@@ -1,0 +1,305 @@
+```{r Original model CFA}
+FF.model.Original <- "Observe =~ item1 + item6 + item11 + item15 + item20 + item26 + item31 + item36
+             Describe =~ item2 + item7 + Ritem12 + Ritem16 + Ritem22 + item27 + item32 + item37
+            Awareness =~ Ritem5 + Ritem8 + Ritem13 + Ritem18 + Ritem23 + Ritem28 + Ritem34 + Ritem38
+            Nonjudge =~ Ritem3 + Ritem10 + Ritem14 + Ritem17 + Ritem25 + Ritem30+ Ritem35 + Ritem39
+             Nonreact =~ item4 + item9 + item19 + item21 + item24 + item29 + item33 "
+
+fit.original <- cfa(FF.model.Original, data = IRT, ordered = names(IRT),estimator = "WLSMV", mimic = "Mplus", test="standard")
+
+
+
+
+lavaan::summary(fit.original, fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
+
+
+fitmeasures (fit.original,c("gfi", "agfi", "nfi","rfi", "cfi.scaled","tli.scaled","rmsea", "srmr","aic"))
+
+reliability(fit.original, return.total = TRUE)
+```
+
+
+```{r mod1, eval=FALSE, include=FALSE}
+modfit.or <- modindices(fit.original, sort. = TRUE)
+modfit.or[modfit.or$mi>3.84,]
+```
+
+```{r fulscale-refit-1}
+#We accepted this model
+##Previously Rtem 3 and Ritem 39 discarded due to loading lower than <.30
+#Ritem38 is discared <.30
+#Ritem17, Ritem12, 22, 16,35,30 is discarded for crossloading
+FF.mod.cor.1 <- "Observe =~ item1 + item6 + item11 + item15 + item20 + item26 + item31 + item36
+             Describe =~ item2 + item7 +   item27 + item32 + item37
+            Awareness =~ Ritem5 + Ritem8 + Ritem13 + Ritem18 + Ritem23 + Ritem28 + Ritem34 
+            Nonjudge =~  Ritem10 + Ritem14  + Ritem25 + Ritem30
+             Nonreact =~ item4 + item9 + item19 + item21 + item24 + item29 + item33 
+                                         "
+
+
+fit.cor.mod.1 <- cfa(FF.mod.cor.1, data = IRT, ordered = names(IRT),estimator = "WLSMV", mimic = "Mplus")
+
+
+
+
+lavaan::summary(fit.cor.mod.1, fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
+
+
+fitmeasures (fit.cor.mod.1,c("gfi", "agfi", "nfi","rfi", "cfi","tli","rmsea", "srmr","aic"))
+
+reliability(fit.cor.mod.1, return.total = TRUE)
+
+
+
+```
+
+```{r fullsacel-mod-1}
+modfit <- modindices(fit.cor.mod, sort. = TRUE)
+modfit[modfit$mi>3.84,]
+```
+
+
+
+
+```{r fulscale-refit-2}
+#We are not reporting this model
+##Previously Rtem 3 and Ritem 39 discarded due to loading lower than <.30
+#Ritem38 is discared <.30
+#Ritem17, Ritem12, 22, 16,35,30 is discarded for crossloading
+FF.mod.cor.2 <- "Observe =~ item1 + item6 + item11 + item15 + item20 + item26 + item31 + item36
+             Describe =~ item2 + item7 +   item27 + item32 + item37
+            Awareness =~ Ritem5 + Ritem8 + Ritem13 + Ritem18 + Ritem23 + Ritem28 + Ritem34 
+            Nonjudge =~  Ritem10 + Ritem14  + Ritem25 + Ritem30
+             Nonreact =~ item4 + item9 + item19 + item21 + item24 + item29 + item33 
+                                         item21 ~~  item24
+                                         
+                                         Ritem34 ~~  item33"
+
+
+fit.cor.mod.2 <- cfa(FF.mod.cor.2, data = IRT, ordered = names(IRT),estimator = "WLSMV", mimic = "Mplus")
+
+
+
+
+lavaan::summary(fit.cor.mod.2, fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
+
+
+fitmeasures (fit.cor.mod.2,c("gfi", "agfi", "nfi","rfi", "cfi","tli","rmsea", "srmr","aic"))
+
+reliability(fit.cor.mod.2, return.total = TRUE)
+
+
+
+```
+
+
+
+
+```{r}
+compare <- anova(fit.cor.mod.1,fit.cor.mod.2)
+summary(compare)
+```
+
+
+## Check Invariance####
+
+```{r Shortcut Invariance}
+
+
+library("semTools")
+invariance.model <- measurementInvariance(model = FF.mod.cor.1,
+                                          data = data,
+                                          group = "Gender",
+                                          ordered = names(data),
+                                          estimator = "WLSMV",
+                                          strict = T)
+invariance.model[[1]] #configural Invariance
+invariance.model[[2]] # loading, weak, metric
+invariance.model[[3]] # intercept, strong, scaler
+invariance.model[[4]] # residual, strict
+invariance.model[[5]] # means, structural invariance
+```
+
+
+
+
+```{r Invariancedetail, include=FALSE}
+# Configural invariance ####
+
+
+configural <- cfa(model = FF.mod.cor.1,
+                  data = data,
+                  group = "Gender",
+                 ordered = names(data),
+                 estimator = "WLSMV")
+
+summary(configural, fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
+
+fitmeasures (configural,c("gfi", "agfi", "nfi","rfi", 
+                       "cfi","tli",
+                       "rmsea", "rmsea.ci.lower", "rmsea.ci.upper","srmr"))
+
+#Metric
+weak <- cfa(model = FF.mod.cor.1,
+                  data = data,
+                  group = "Gender",
+                  ordered =   names(data),
+                  estimator = "WLSMV", 
+            group.equal = "loadings")
+            
+summary(weak, fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
+
+
+fitmeasures (weak,c("gfi", "agfi", "nfi","rfi", 
+                       "cfi","tli",
+                       "rmsea", "rmsea.ci.lower", "rmsea.ci.upper","srmr"))
+
+First.comp <- compareFit (configural, weak)
+summary(First.comp)
+
+
+
+#Scaler
+strong <- cfa(model = LB.model.Cor.2,
+                  data = invariance.data,
+                  group = "English_Speaking",
+                  ordered =   names(CFA.data),
+                  estimator = "WLSMV", 
+              group.equal = c("loadings", "intercepts"))
+summary(strong, fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
+
+Second.comp <- compareFit  (weak, strong)
+summary(Second.comp)
+
+#residual
+strict <- cfa(model = LB.model.Cor.2,
+                  data = invariance.data,
+                  group = "English_Speaking",
+                  ordered =   names(CFA.data),
+                  estimator = "WLSMV",  
+              group.equal = c("loadings", "intercepts", "residuals")) 
+
+summary(strict, fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
+fitmeasures (strict,c("gfi", "agfi", "nfi","rfi", "cfi.robust","tli.robust","rmsea", "srmr","aic"))
+
+Third.comp <- compareFit(strict,strong)
+summary(Third.comp)
+#structural
+structural <-cfa(model = LB.model.Cor.2,
+                  data = invariance.data,
+                  group = "English_Speaking",
+                  ordered =   names(CFA.data),
+                  estimator = "WLSMV",  
+                 group.equal = c("loadings", "intercepts", "residuals", "means","lv.variances","lv.covariances"))
+
+summary(structural, fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
+fitmeasures (structural,c("gfi", "agfi", "nfi","rfi", "cfi","tli","rmsea", "srmr","aic"))
+
+fourth.comp <- compareFit  (structural,strict)
+summary(fourth.comp)
+comfit.par <- compareFit(configural, weak, strong, strict)
+summary (comfit.par)
+
+models <-  list("Configural" = configural, 
+                "Metric" = weak, 
+                "Scalar" = strong, 
+                "Residual" = strict)
+
+
+
+Invariance.table <- compareLavaan(models,
+              nesting = "Configural > Metric > Scalar > Residual", 
+              fitmeas = c("chisq.scaled", "df",  "cfi.scaled","tli.scaled","rmsea.scaled", "rmsea.ci.lower.scaled", "rmsea.ci.upper.scaled" ),
+              scaled = T,
+              chidif = T, digits = 2)
+
+colnames(Invariance.table) <- c("Chi-Square", "df", "CFI", "TLI", "RMSEA", "RMSEA 90% Lower CI", "RMSEA 90% Upper", "Chi-Square Difference", "df difference*", "p")
+
+
+```
+
+```{r InvarianceTab, results='asis'}
+apa_table(Invariance.table, align = "c",  caption = "Invariance Analysis", note = " a = Metric vs Configural; b = Scalar vs Metric; c = Residual vs Scalar; d = Structural vs Residual;* =  df of model comparison", landscape = T, font_size = "footnotesize" )
+
+```
+
+
+
+
+
+
+
+
+
+
+```{r fulscale-refit-rejected, eval=FALSE, include=FALSE}
+#Ritem 38 & 3,39 poor loading (<.3)
+#item12 and  17, 22,16, 34 belonged to many factors 
+
+FF.model.Cor <- "Observe =~ item1 + item6 + item11 + item15 + item20 + item26 + item31 + item36
+             Describe =~ item2 + item7 +   item27 + item32 + item37
+            Awareness =~ Ritem5 + Ritem8 + Ritem13 + Ritem18 + Ritem23 + Ritem28 + Ritem34 
+            Nonjudge =~  Ritem10 + Ritem14 + Ritem25 + Ritem30+ Ritem35
+             Nonreact =~ item4 + item9 + item19 + item21 + item24 + item29 + item33
+                                    Ritem23 ~~ Ritem34
+                                    Ritem5 ~~  Ritem8
+                                    Ritem28 ~~ Ritem34
+                                   item36 ~~ Ritem35
+                                    item9 ~~  item33
+                                    item21 ~~  item24
+  "
+                         
+fit.cor <- cfa(FF.model.Cor, data = IRT, ordered = names(IRT),estimator = "WLSMV", mimic = "Mplus")
+suma <- summary(fit.cor, fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
+
+
+fit.indices.cor <- fitmeasures (fit.cor,c("gfi", "agfi", "nfi","rfi", "cfi","tli","rmsea", "srmr","aic"))
+
+rel.cor <- reliability(fit.cor, return.total = TRUE)
+                        
+```
+
+```{r mod2, eval=FALSE, include=FALSE}
+modfit.cor <- modindices(fit.cor, sort. = TRUE)
+modfit.cor[modfit.cor$mi>3.84,]
+```
+
+
+```{r sec-order, include=FALSE}
+#item 38 <.3
+# item 10, 12, 16, 22, 14,25,30,35,19 load on several factors
+
+FF.model.so <- "Observe =~ item1 + item6 + item11 + item15 + item20 + item26 + item31 + item 36
+             Describe =~ item2 + item7 +  item27 + item32 + item37
+            Awareness =~ Ritem5 + Ritem8 + Ritem13 + Ritem18 + Ritem23 + Ritem28 + Ritem34 
+            Nonjudge =~ Ritem3 +   Ritem17 + Ritem39
+             Nonreact =~ item4 + item9 +  item21 + item24 + item29 + item33 
+Mindfulness =~ Observe + Describe + Awareness + Nonjudge +Nonreact 
+Ritem5 ~~    Ritem8
+item2 ~~   Ritem13
+item21 ~~    item24
+item11 ~~    item32
+Ritem5 ~~   Ritem13
+item9 ~~    item33
+Ritem23 ~~   Ritem34
+item6 ~~     item2
+item36 ~~   Ritem17
+"
+
+fit.so <- cfa(FF.model.so, data = cfa.FSS, estimator = "MLR", mimic = "Mplus")
+summary(fit.so, fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
+
+
+fitmeasures (fit.so,c("gfi", "agfi", "nfi","rfi", "cfi.robust","tli.robust","rmsea", "srmr","aic"))
+
+reliability(fit.so, return.total = TRUE)
+```
+
+
+
+```{r mod2, eval=FALSE, include=FALSE}
+modfit.so <- modindices(fit.so, sort. = TRUE)
+modfit.so[modfit.so$mi>3.84,]
+```
+
+

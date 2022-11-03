@@ -1,0 +1,1672 @@
+---
+title             : "Psychometric Evaluation of the Bangla-translated Five Facet Mindfulness Questionnaire through Classical Test Theory and Item Response Theory"
+shorttitle        : "Bangla FFMQ"
+
+author: 
+  - name          : "Mushfiqul Anwar Siraji"
+    affiliation   : "1"
+    role:
+      - Conceptualization
+      - Data Curation
+      - Formal Analysis
+      - Project Management
+      - Data Visualization
+      - Writing - Original Draft Preparation
+      - Writing - Review & Editing
+
+  - name          : "Munia Rahman Chandni"
+    affiliation   : "2"
+    role:
+      - Conceptualization
+      - Data Curation
+      - Writing - Original Draft Preparation
+      - Writing - Review & Editing
+      
+      
+  - name          : "Bishal Saha"
+    affiliation   : "3"
+    email         : "bishal.psychology@std.cu.ac.bd"
+    role:
+      - Conceptualization
+      - Data Curation
+
+  - name          : "Shamsul Haque"
+    affiliation   : "1"
+    corresponding : yes    # Define only one corresponding author
+    address       : "Monash University Malaysia, Jalan Lagoon Selatan, 47500 Bandar Sunway, Selangor Darul Ehsan, Malaysia."
+    email         : "shamsul@monash.edu"
+    role:         
+      - Conceptualization
+      - Writing - Original Draft Preparation
+      - Writing - Review & Editing
+      - Supervision
+
+
+affiliation:
+  - id            : "1"
+    institution   : "Department of Psychology, Jeffrey Cheah School of Medicine and Health Sciences, Monash University Malaysia"
+  - id            : "2"
+    institution   : "Independent Scholar"
+  - id            : "3"
+    institution   : "Department of Psychology, University of Chittagong "
+
+
+authornote: |
+  Add complete departmental affiliations for each author here. Each new line herein must be indented, like this line.
+
+  Enter author note here.
+
+abstract: |
+  Mindfulness-related skills have been widely incorporated into physiological and psychological health-related interventions. The 39-item Five Facet Mindfulness Questionnaire (FFMQ) encompasses a multi-faceted construct of mindfulness and provides an in-depth understanding of mindfulness. However, past research evidenced that the latent structure of FFMQ differs highly. Hence, we attempted to translate FFMQ into Bangla and investigated the reliability, structural and concurrent validity of Bangla-FFMQ.
+  We collected data from a large community sample of Bangladeshi adults (N=532). We assessed content validity using item-level (I-CVI) and scale-level (S-CVI) content validity indexes. We used item-response theory-based item analysis to identify items with problematic item fit, item discrimination and item difficulty. Confirmatory factor analysis (CFA) was utilized to investigate the structural validity. Associations of the scale with other measures of mindfulness, emotional intelligence, depression, and two aspects of the Big Five Personality Inventory: openness and neuroticism, were investigated to establish concurrent validity. 
+  Bangla-FFMQ had acceptable content validity (I-CVI>.83, S-CVI=.93). Item response theory-based item analysis identified ten items as problematic, thus discarded. CFA on the 29-item Bangla-FFMQ yielded an acceptable fit for two models: the five-factor correlational model (CFI= 0.94; TLI= 0.94) and the one-factor higher-order model (CFI= 0.93; TLI= 0.93). The 29-item scale had satisfactory internal consistency (Mcdonald’s Omega = .80). The five facets were differentially associated with the other measures indicating the scale's satisfactory concurrent validity.
+  Our findings provide the first evidence of the structural and concurrent validity of the Bangla-FFMQ and indicated its usability in measuring mindfulness among Bangladeshi community adults. 
+
+  
+  <!-- https://tinyurl.com/ybremelq -->
+  
+keywords          : c("Mindfulness", "Structural Validity", "Concurrent Validity", "Reliability")
+wordcount         : "X"
+
+bibliography      : ["references.bib"]
+csl               : vancouver.csl
+floatsintext      : no
+figurelist        : no
+tablelist         : no
+footnotelist      : no
+linenumbers       : yes
+mask              : no
+draft             : no
+
+documentclass     : "apa6"
+classoption       : "man"
+#output            : papaja::apa6_pdf
+output            : 
+  papaja::apa6_pdf:
+  latex_engine: xelatex
+mainfont: Arial
+---
+
+```{r setup-chunk, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = F, message = F, dpi=1200)
+options(knitr.duplicate.label = "allow")
+set.seed(123)
+par(family = "Arial")
+
+```
+
+
+
+```{r pacman,  include=FALSE}
+#You need to run this chunk 1X in your system 
+#install.packages("pacman")#Run this if you don't have pacman installed.
+# renv::restore()
+ pacman::p_load(MOTE, tidyverse, psych, lavaan,kableExtra,gt,gtsummary, mirt,likert,kutils,semPlot,semTable,semTools,dlookr,VIM,DiagrammeR,DiagrammeRsvg,ggplot2,cowplot,rsvg,questionr,magick, simsem,readxl, MVN)
+
+library(gtExtras)
+library(papaja)
+library(papaja)
+library(lordif)
+library(tabledown)
+papaja::r_refs("references.bib")
+renv::snapshot()
+
+#if you dont have LaTeX installed run the following lines
+# install.packages("tinytex")
+# tinytex::install_tinytex()
+```
+
+---
+nocite: |
+  `r papaja::cite_r("references.bib")`
+---
+
+```{r samplesize, include=F}
+lavmodel <-  "Observe =~ item1 + item6 + item11 + item15 + item20 + item26 + item31 + item36
+Describe =~ item2 + item7 + Ritem12 + Ritem16 + Ritem22 + item27 + item32 + item37
+Awareness =~ Ritem5 + Ritem8 + Ritem13 + Ritem18 + Ritem23 + Ritem28 + Ritem34 + Ritem38
+Nonjudge =~ Ritem3 + Ritem10 + Ritem14 + Ritem17 + Ritem25 + Ritem30+ Ritem35 + Ritem39
+Nonreact =~ item4 + item9 + item19 + item21 + item24 + item29 + item33" 
+
+
+df <- semPower::semPower.getDf(lavmodel)
+ap <- semPower::semPower.aPriori(effect = .05, effect.measure = 'RMSEA', 
+                                 alpha = .05, 
+                                 power = .80, 
+                                 df = df) 
+summary(ap)
+
+```
+
+
+```{r samplesizeIRT, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE, results='hide', width=60}
+library(SimDesign)
+set.seed(222)
+m <-  8 # item number
+n <- c(50, 100, 200, 300, 400, 450, 500) # sample size
+design <- as.data.frame(n)
+
+
+irtGenerate <- function(condition, fixed_objects = FALSE) {
+n <- condition$n
+
+a <- matrix(rlnorm(m,.2,.3))
+diffs <- t(apply(matrix(runif(m*4, .3, 1), m), 1, cumsum))
+diffs <- -(diffs - rowMeans(diffs))
+diffs<- diffs + rnorm(m)
+d <- diffs
+dat <- simdata(a, d, n, itemtype = 'graded')
+return(dat)
+}
+
+irtAnalyze <- function(condition, dat, fixed_objects = NULL) {
+mod <- mirt(dat, 1, itemtype = 'graded', verbose = FALSE)
+simpars <- coef(mod, simplify = TRUE, digits = Inf)$items
+irtpars <- c(a = simpars[,1], d = simpars[,2])
+return(irtpars)
+}
+
+irtSummarize <- function(condition, results,
+fixed_objects = NULL) {
+apop <- fixed_objects['alpha', ]
+dpop <- fixed_objects['d', ]
+simrmse <- RMSE(results, c(apop, dpop))
+out <- c(RMSE = simrmse)
+return(out)
+}
+
+
+simres <- runSimulation(design, replications = 100,
+parallel = TRUE, generate = irtGenerate,
+analyse = irtAnalyze, summarise = irtSummarize,
+packages = c('mirt'))
+simres
+
+
+colind <- grep(".a.", colnames(simres))
+sima <- as.data.frame(simres[, colind])
+nvec <- as.numeric(simres$n)
+
+meanRMSE <- rowMeans(sima)
+names(meanRMSE) <- n
+round(meanRMSE, 2)
+matplot(nvec, log(sima), type = "l", col = 1, lty = 1,
+ylab = "log(RMSE)", xlab = "sample size",
+main = "Graded Response Model", xaxt = "n")
+axis(1, at = nvec)
+```
+
+
+
+# Introduction
+Mindfulness indicates a state with complete attention towards the present moment experience with a nonjudgmental attitude [@kabat-zinnWhereverYouGo2009; @brownBenefitsBeingPresent2003]. In recent years, mindfulness has been successfully incorporated with different physiological and psychological health-related interventions  [@hofmannEffectMindfulnessbasedTherapy2010; @kabat-zinnMindfulnessbasedStressReduction2003]. Mindfulness-based interventions, including mindfulness-based stress reduction [@kabat-zinnMindfulnessbasedStressReduction2003; @kabat1982outpatient], mindfulness-based cognitive therapy [@mackenzie2018mindfulness] and dialectical behaviour therapy [@linehan1993skills; @linehan2018cognitive] have reported a reduction in symptoms across a wide range of disorders. These interventions consider mindfulness as a set of skills that can be installed in one$'$s behaviour and mastered through practice over time to increase health and well being. Over the years, several self-reported instruments have emerged to capture the essence of mindfulness. However, across these instruments, the operational definition of "mindfulness" varies, and most importantly, the question regarding the underlying latent structure of mindfulness remains open.
+
+Most of the self-reported instruments to measure mindfulness are rooted in the two-component model  [@bishopMindfulnessProposedOperational2004] or two-style model of mindfulness. The two-component model [@bishopMindfulnessProposedOperational2004] defines mindfulness by  a. self-regulated attention towards the present moment and b. orientation to experience. The two-style model [@lutzAttentionRegulationMonitoring2008]  defines mindfulness by  a. focused attention to a chosen object and b. open (nonreactive) monitoring of the present moment experience. These two models can be thought of as two sides of the same coin that guided the developmental process of several popular instruments, including: Mindfulness Attention Awareness Scale (MASS;[@brownBenefitsBeingPresent2003]), Freiburg Mindfulness Inventory (FMI;[@buchheld2001measuring] ), The Kentucky Inventory of Mindfulness Skills (KIMS;[@baerAssessmentMindfulnessSelfreport2004]), The Cognitive and Affective Mindfulness Scale (CAMS;[@feldmanMindfulnessEmotionRegulation2007]) and Southampton Mindfulness Questionnaire (SMQ; [@chadwick2008responding]). MASS, FMI, CAMS, and SMQ follow a single factor structure, whereas KIMS follow a multidimensional structure. In an attempt to answer the question of dimensionality and develop a common definition of mindfulness, [@baerUsingSelfReportAssessment2006] conducted an exploratory factor analysis with 613 respondent$'$s data on all the aforementioned questionnaires. This led to the development of the "Five-facet Mindfulness Questionnaire" where the essence of mindfulness was captured in five distinct facets. The first facet, "Observe" captures people$'$s ability to notice their own emotions, thoughts and other environmental sensation. The "Describe" facet captures the ability to describe one$'$s thoughts and emotions in words. " Acting with awareness" (actwar) investigate people$'$s ability to attend to the present moment awareness. The fourth facet, "Not judging the inner experiences" (Nonjudge) captures the ability not to judge one$'$s internal thoughts and emotions. The last facet, "not reacting to the inner experience" (Nonreact), deals with people$'$s ability to attend to one$'$s thoughts and emotions without rumination or fixation ([@baerAssessmentMindfulnessSelfreport2004; @taylorValidityFiveFacet2016]).
+
+[@baerUsingSelfReportAssessment2006] proposed two different models as the latent structure, First is the most popular one, a correlated five facet model where each facet would yield a subscore for itself. The second proposed model was a higher order model where 4 facets (describe, actwar, nonjudge, and nonreact) were elements of a general factor: mindfulness. However, the necessity of proper psychometric calibration of FFMQ for the target population is also evident in the work of @baerUsingSelfReportAssessment2006. In their work, it was evident that the latent structure of mindfulness was different among meditating and student samples. Among the meditating sample (n =190), the higher order model with all five facets exhibited the best fit, whereas in the student sample (n = 268), a hierarchical model with 4 facets was accepted. Several studies have since replicated these two proposed models (higher order:[@curtiss2014factor;@gu2016examining]; correlated five-facet: [@bohlmeijer2011psychometric; @tranInvestigatingFiveFacet2013] added more proof that the latent structure of FFMQ may vary depending on the target population. Subsequently, several countries including including Germany [@tranInvestigatingFiveFacet2013], Italy [@giovanniniItalianFiveFacet2014], Japan [@sugiuraDevelopmentValidationJapanese2012],  Chinese [@dengFiveFacetMindfulness2011], Brazil [@barrosValidityEvidenceBrazilian2015], and Australia [@taylorValidityFiveFacet2016;@medvedev2017improving] have validated The FFMQ. However, FFMQ has not yet been validated among Bangladeshi sample to date. 
+
+Additionally, most validation work focused on classical test theory (CTT)-based analyses(factor analyses and construct validity). However, classical test theory does not incorporate individual item properties, i.e. item difficulty and item discrimination and relies on the total score obtained in an instrument. Item response theory (IRT) complements the conventional CTT-based analysis by gathering information on item discrimination and difficulty[@lord2012applications]. Unlike the CTT, IRT relates the probability of success of each item with the estimated latent trait using a logistic function called Item Characteristic Curve (ICC) [@calderon2021psychometric]. Item difficulty corresponds to the latent trait level at which the probability of endorsing a particular response option is 50%. Item discrimination indicates how well a particular item can differentiate between participants across the given latent trait continuum. Along with these parameters, IRT also provides item-information and test-information curves that demonstrate how much information a particular item and test carry across the latent trait continuum. This information can use used to increase the precision of an instrument. However, very few studies have attempted to increase the precision of FFMQ using IRT based analysis[@shallcross2020evaluation;@medvedev2017improving].
+
+Thus, in this study, we had three main objectives: first,  we evaluated the Bangla-FFMQ (BFFMQ) using IRT based analysis to increase the scale precision of Bangla-FFMQ (BFFMQ). Second,  we investigated the structural properties of BFFMQ on a large community sample (n=532). Third, we collected construct validity evidence of BFFMQ
+
+
+# Methods
+
+## Ethical Consideration 
+
+All procedures performed in studies involving human participants were in accordance with the 1964 Helsinki declaration and its later amendments or comparable ethical standards. This article does not contain any studies with animals performed by any of the authors.
+
+## Data and code availability
+All code and data underlying this article is available on a public GitHub repository (https://github.com/masiraji/FiveFacetMindfulness).
+
+## Participants
+```{r data, include =F}
+library(readxl)
+data <- readRDS("ProcessedData/Bangla_FFMQ.rds")
+
+IRT <- data %>% 
+  dplyr::select(item1:Ritem39)
+
+Descriptives <- data %>% 
+  dplyr::select(Age: Social_status)
+
+validity <- subset(data, Sample == "Correlational Analysis")
+val.des <-validity %>% 
+  dplyr::select(Age: Social_status)
+
+```
+
+```{r prepareDescTable, include=FALSE}
+
+# create descriptive table for the demographic vars (excluding tz & Country) with gtsummary
+desc_table <- Descriptives%>%
+  tbl_summary(
+    by = Gender,
+    type = list(`Education Years` ~ 'continuous'),
+    statistic = list(all_continuous() ~ "{mean} ({sd})", 
+                     all_categorical() ~ "{n} ({p}%)"),
+    
+    digits = all_continuous() ~ 2,
+    label = list(Age ~ "Age",
+                 Social_status ~ "Social Status"
+                 ),
+    missing = "no",
+    sort = all_categorical() ~ "frequency",
+    ) %>% add_overall() %>% bold_labels() %>% add_p() %>% add_q() %>%
+modify_header(label ~ "**Variable**") %>% separate_p_footnotes() %>%
+  modify_caption("Demographic Characteristics")  
+
+as_tibble(desc_table) -> desc_tibble 
+as_kable_extra(desc_table, format = "latex",booktabs = T) -> desc_kable #save it as a knitr::kable
+
+
+des <- Descriptives %>% 
+  psych::describeBy("Gender")
+female <- as.tibble(des$Female)
+male <- as.tibble(des$Male)
+
+
+v.des <- val.des %>% 
+  psych::describeBy("Gender")
+v.female <- as.tibble(v.des$Female)
+v.male <- as.tibble(v.des$Male)
+
+
+
+v.desc_table <- val.des%>%
+  tbl_summary(
+    by = Gender,
+    type = list(`Education Years` ~ 'continuous'),
+    statistic = list(all_continuous() ~ "{mean} ({sd})", 
+                     all_categorical() ~ "{n} ({p}%)"),
+    
+    digits = all_continuous() ~ 2,
+    label = list(Age ~ "Age",
+                 Social_status ~ "Social Status"
+                 ),
+    missing = "no",
+    sort = all_categorical() ~ "frequency",
+    ) %>% add_overall() %>% bold_labels() %>% add_p() %>% add_q() %>%
+modify_header(label ~ "**Variable**") %>% separate_p_footnotes() %>%
+  modify_caption("Demographic Characteristics")  
+
+as_tibble(v.desc_table) -> v.desc_tibble 
+
+
+
+
+```
+
+A large group of `r nrow(data)` participants from Bangladesh participated in this study . 11 participants were excluded due to incomplete data.  Participants were recruited following convenience sampling technique. For conducting a confirmatory factor analysis For estimating the sample size for the confirmatory factor analysis we followed the N:q rule [@RN1268; @RN1269; @RN1270; @RN1271] where 10 participants per parameters is required to earn trustworthiness of the result. Our sample size exceeds the requirement. Out of `r nrow(data)` participants, `r female[1,2]` were female ranging in age from `r female[1,8]` to `r female[1,9]` years (`r round(female[1,3],2)`±`r round(female[1,4],2)`). `r male[1,2]`  were male with an age range between `r male[1,8]` to `r male[1,9]` years (`r round(male[1,3],2)`±`r round(male[1,4],2)`). The average years of education for the females were `r round(female[3,3],2)`±`r round(female[3,4],2)` and for the males were `r round(male[3,3],2)`±`r round(male[3,4],2)`. `r desc_tibble[8,2]`  participants were married. The mean score of perceived social stance measured by a 10-point ladder was `r round(female[6,3],2)`±`r round(female[6,4],2)` among females and `r round(male[6,3],2)`±`r round(male[6,4],2)` among males. 
+
+Responses from a subset of our sample, n = `r nrow(validity)` were used to investigate the construct validity evidence. Among them, `r v.female[1,2]` were female ranging in age from `r v.female[1,8]` to `r v.female[1,9]` years (`r round(v.female[1,3],2)`±`r round(v.female[1,4],2)`). `r v.male[1,2]`  were male with an age range between `r v.male[1,8]` to `r v.male[1,9]` years (`r round(v.male[1,3],2)`±`r round(v.male[1,4],2)`).The average years of education for the females were `r round(v.female[3,3],2)`±`r round(v.female[3,4],2)` and for the males were `r round(v.male[3,3],2)`±`r round(v.male[3,4],2)`. `r v.desc_tibble[8,2]` participants were married. The mean score of perceived social stance measured by a 10-point ladder was `r round(v.female[6,3],2)`±`r round(v.female[6,4],2)`
+ 
+## Material
+
+```{r reliability-validity, include =F}
+
+
+validity$EI17 <- as.numeric(validity$EI17)
+
+observe <- validity %>% 
+  dplyr::select( item6 , item11 , item15 , item20 , item26 , item31 , item36)
+
+describe <- validity %>% 
+  dplyr::select(item7 ,  Ritem12 , Ritem16 , Ritem22 , item27 , item32 , item37)
+
+awareness <- validity %>% 
+  dplyr::select( Ritem8 , Ritem13 , Ritem18 , Ritem23 , Ritem28 , Ritem34)
+
+nonjudge <- validity %>% 
+  dplyr::select(Ritem10 , Ritem14,  Ritem25 , Ritem30)
+
+nonreact <- validity %>% 
+  dplyr::select( item9 , item19 , item21 , item24 , item29 , item33)
+
+EI <- validity %>% 
+  dplyr::select(EI1:EI34)
+
+
+GHQ <- validity %>% 
+  dplyr::select(RGHQ1:GHQ12)
+
+
+Depression<- validity %>% 
+  dplyr::select(D1:D30)
+
+MASS <- validity %>% 
+  dplyr::select(M1:M15)
+
+Openness <- validity %>% 
+  dplyr::select(O1:O10)
+
+Extraversion <- validity %>% 
+  dplyr::select(E1:E8)
+
+
+Neurotic <- validity %>% 
+  dplyr::select(N1:N8)
+
+
+EI.rel <- psych::alpha(EI, check.keys = T)
+Ei.omega <- psych::omega(EI, nfactors=10)
+GHQ.rel <- psych::alpha(GHQ, check.keys = T)
+depression.rel <- psych::alpha(Depression, check.keys = T)
+depression.omega <- psych::omega(Depression, nfactors=1)
+MASS.rel <- psych::alpha(MASS, check.keys = T)
+mass.omega <- psych::omega(MASS, nfactors=1)
+Openness.rel <- psych::alpha(Openness)
+opennes.omega <- psych::omega(Openness, nfactors=1)
+Extraversion.rel <- psych::alpha(Extraversion)
+Neurotic.rel <- psych::alpha(Neurotic , check.keys = T)
+Neurotic.omega <- psych::omega(Neurotic, nfactors=1)
+Extraversion.omega <- psych::omega(Extraversion, nfactors=1)
+
+```
+
+### Five Facets Mindfulness Questionnaire (FFMQ)
+FFMQ is a 39-item questionnaire that measures an individual’s mindfulness across five dimensions: observe, describe, nonjudging of inner experience (nonjudge),  acting with awareness (actwar) and nonreactivityto inner experience (nonreact) [@baerUsingSelfReportAssessment2006]. Items were scored on a 5-point Likert-type scale ranging from 1 (never or very rarely true) to 5 (very often or always true). Each facet score were computed by summing the scores on the individual items. A higher score would indicate a higher disposition of mindfulness.
+ 
+## Bangla Five Facets Mindfulness Questionnaire (BFFMQ) 
+
+We followed International Test Commission (ITC) guidelines [@bartramITCGuidelinesTranslating2018] to translate and adapt FFMQ. Two bilingual researchers (PhD in Psychology) natives in Bangla translated the original version (English) to Bangla. Two translated versions were then judged and synthesized by the authors. Subsequently, two bilingual researchers (PhD in psychology) back translated the Bangla scale into English with no knowledge of the original work. The authors synthesized the two back-translations and compared it with the original scale and made necessary amendments. 
+### Mindfulness Attention Awareness Scale (MAAS)
+MAAS is a 15-item instrument with a 6-point Likert type response scale (almost always to almost never) measuring the tendency to be attentive and remain aware of present-moment experience [@brownBenefitsBeingPresent2003]. It provides a single total score (total score range: 1-90) where a high score would indicate a higher disposition of mindfulness. We  used the Bangla MAAS [@islamValidationBanglaMindful2016]. In our subset of the sample (n = `r nrow(validity)`) the reliability coefficient was $\omega_t$ = `r MOTE::apa(mass.omega$omega.tot,2,F)`
+
+### Emotional Intelligence (EI)
+The Emotional Intelligence Scale is a 34-item self-report scale with a 5-point Likert type response scale (Strongly agree to strongly disagree) [@hydePsychologicalTestManual2002]. We translated all 34 items (English) to Bangla language using the standard forward and backward translation method. A total score can be computed by summing up all item scores (total score range : 34-170) where Aahigher total score indicates a higher level of emotional intelligence. Internal consistency coefficient for the total scale in our subset of the sample (n = `r nrow(validity)`) was, $\omega_t$ = `r MOTE::apa(Ei.omega$omega.tot,2,F)`
+
+### Depression Scale
+Depression scale is a 30-item questionnaire with a 5-point Likert type response scale (Not at all true to always true)  [@uddinDevelopmentScaleDepression2005]  that measure depression. A total score can be computed by summing up all item scores (total score range: 30-150). A higher total score indicates a higher level of depression. Internal consistency coefficient in our subset of the sample (n = `r nrow(validity)`) was $\omega_t$  = `r MOTE::apa(depression.omega$omega.tot,2,F)`
+
+### Bangla Big Five Inventory (BBFI)
+We  measured  neuroticism and openness to experience by two subscales of BBFI [@RN1287;@RN1278; @RN1288].The neuroticism subscale measures the extent to which an individual is an affectively unstable, anxious and worried [@hornerLocusControlNeuroticism1996]. It has eight items (3 reversed items). The openness subscale has ten items (2 reversed items) and measures an individual$'$s susceptibility to aesthetics, ideas, values, and flexibility [@costaNormalPersonalityAssessment1992]. Each item was scored on a five-point Likert scale. Internal consistency coefficient McDonald’s $\omega_t$  for extroversion, neuroticism and openness to experience obtained in our subset of the sample (n = `r nrow(validity)`) were ` `r MOTE::apa(Neurotic.omega$omega.tot,2,F)` and `r MOTE::apa(opennes.omega$omega.tot,2,F)` respectively.
+
+## Data collection
+A cross-sectional fully anonymous online survey was conducted. Participants were invited via email and social media (i.e., LinkedIn, Twitter, Facebook) along with explanatory statements and upon their expressed interest, survey link was sent to them. Once the participants voluntarily agreed to participate, their consent was recorded digitally. Completing the online survey took approx. 20 to 25 minutes and was not compensated.
+
+## Analytic strategies
+We used  `r R.version$version.string`[@R-base] for our analysis. We started our psychometric analysis by assessing the content validity of BFFMQ. We confirmed the unidimensionality  of each five facets of BFFMQ in our sample (n = `r nrow(data)`) by a Categorical Confirmatory Factor Analysis (CFA) using a "Weighted Last Square with mean and variance" (WSMV) estimator using "lavaan" package[@R-lavaan]. To assess the model fit we followed the popular suggestions of @RN1162: Comparative fit index (CFI) and the Tucker Lewis index (TLI): good fit $\geq$.95, acceptable fit$\geq$.90); the root mean square error of approximation (RMSEA): good fit < .06, acceptable fit <.08; and the standardized root mean square (SRMR) good fit<.08, acceptable fit <.10. Once, we confirm the unidimensionality of each facet, we fitted  "graded response" based IRT models with for each facet using "mirt" package [@R-mirt]. In IRT we employed marginal maximum likelihood estimation method with MHRM algorithm. We gathered information on item difficulty, discrimination, item information and test information. We assessed the local fit of the items using S-$\chi^2$ and RMSEA statistics. Person-fit was assessed using $Z_h$ statistics. Based on the IRT parameters we identified and discarded low quality items.  With the retained items we fitted two different latent structure models: a. correlated model with 5 factors,  b. Higher order model with 1 general factor and 5 secondary factors. Lastly, we gathered evidence of convergent validity of the five facets by calculating  correlation coefficients with other related constructs.
+
+#Results
+
+
+## Content validity: expert panel review
+12 mental health professionals independently assessed the content validity of Bangla FFMQ (39 items) using a using a 4-point Likert type scale (1: not at all relevant, 2: slightly relevant, 3: quite Relevant, 4: Highly Relevant). We estimated the item-level content validity (I-CVI) and scale-level content validity index (S-CVI) to assess the relvance of the items. All items I-CVI scores higher than 0.83 indicating good content validity [@article; @RN1290]. The S-CVI was .96, estimated using the average method and indicated satisfactory content validity [@article; @RN1290].
+
+
+## Descriptive Statistics
+
+```{r descriptives, include =F}
+ob.m <- IRT  %>% 
+  dplyr::select(item1 , item6 , item11 , item15 , item20 , item26 , item31 , item36)
+  
+  
+des.m <- IRT  %>% 
+  dplyr::select(item2 , item7 , Ritem12 , Ritem16 , Ritem22 , item27 , item32 , item37)
+  
+actw.m <- IRT  %>% 
+  dplyr::select(Ritem5, Ritem8, Ritem13, Ritem18, Ritem23, Ritem28, Ritem34, Ritem38) 
+  
+nj.m <- IRT  %>% 
+  dplyr::select(Ritem3 , Ritem10 , Ritem14 , Ritem17 , Ritem25 , Ritem30, Ritem35,  Ritem39) 
+  
+nr.m <- IRT %>% 
+  dplyr::select(item4 , item9 , item19 , item21 , item24 , item29 , item33) 
+
+
+des.ob <- tabledown::des.tab(ob.m)
+
+des.des <- tabledown::des.tab(des.m )
+des.actw <- tabledown::des.tab(actw.m)
+des.nj <- tabledown::des.tab(nj.m )
+des.nr <- tabledown::des.tab(nr.m )
+
+
+descriptives <- rbind(des.ob,des.des,des.actw,des.nj,des.nr)
+
+mvn.observe <- MVN::mvn(ob.m, mvnTest = "mardia" )
+mvn.describe <- MVN::mvn(des.m, mvnTest = "mardia" )
+mvn.actware <- MVN::mvn(actw.m, mvnTest = "mardia" )
+mvn.nj <- MVN::mvn(nj.m, mvnTest = "mardia" )
+mvn.nr <- MVN::mvn(nr.m, mvnTest = "mardia" )
+
+
+ob.icor <-as.data.frame(as.numeric(des.ob$Corrected.item.total.correlation))
+des.icor <-as.data.frame(as.numeric(des.des$Corrected.item.total.correlation))
+actw.icor <-as.data.frame(as.numeric(des.actw$Corrected.item.total.correlation))
+nj.icor <-as.data.frame(as.numeric(des.nj$Corrected.item.total.correlation))
+nr.icor <-as.data.frame(as.numeric(des.nr$Corrected.item.total.correlation))
+
+
+```
+
+Table\@ref(tab:tabDes) reports univariate descriptive statistics for the 39 items of BBFQ. Our data violated the normality assumption tested by the Shapiro-Wilk test of normality [@RN1260]. The corrected item-total correlations for each facets ranged between: observe: `r apa(min(ob.icor),2,F)` - `r apa(max(ob.icor),2,F)`; describe: `r apa(min(des.icor),2,F)` - `r apa(max(des.icor),2,F)`; actwar: `r apa(min(actw.icor),2,F)` - `r apa(max(actw.icor),2,F)`; nonjudge: `r apa(min(nj.icor),2,F)` - `r apa(max(nj.icor),2,F)` and nonreact: `r apa(min(nr.icor),2,F)` - `r apa(max(nr.icor),2,F)`.
+
+```{r tabDes, results='asis'}
+apa_table(descriptives, caption = "Descriptive Statistics")
+```
+
+## Unidimensionality of each facet
+
+```{r unidimensionality, include =F}
+library(lavaan)
+#Define the model
+observe.model <- "Observe =~ item1 + item6 + item11 + item15 + item20 + item26 + item31 + item36"
+
+describe.model <- "Describe =~ item2 + item7 + Ritem12 + Ritem16 + Ritem22 + item27 + item32 + item37"
+awarnensess.model <- "Awareness =~ Ritem5 + Ritem8 + Ritem13 + Ritem18 + Ritem23 + Ritem28 + Ritem34 + Ritem38"
+
+nonjudge.model <- " Nonjudge =~ Ritem3 + Ritem10 + Ritem14 + Ritem17 + Ritem25 + Ritem30+ Ritem35 + Ritem39"
+
+nonreact.model <- "Nonreact =~ item4 + item9 + item19 + item21 + item24 + item29 + item33 "
+
+#Fit the model
+
+fit.ob <- cfa(observe.model, data = IRT, ordered = names(IRT),estimator = "WLSMV", mimic = "Mplus")
+lavaan::summary(fit.ob, fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
+
+fit.des <- cfa(describe.model, data = IRT, ordered = names(IRT),estimator = "WLSMV", mimic = "Mplus")
+lavaan::summary(fit.des, fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
+
+fit.aw <- cfa(awarnensess.model, data = IRT, ordered = names(IRT),estimator = "WLSMV", mimic = "Mplus")
+lavaan::summary(fit.aw, fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
+
+fit.nonj <- cfa(nonjudge.model, data = IRT, ordered = names(IRT),estimator = "WLSMV", mimic = "Mplus")
+lavaan::summary(fit.nonj, fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
+
+
+fit.nonr <- cfa(nonreact.model, data = IRT, ordered = names(IRT),estimator = "WLSMV", mimic = "Mplus")
+lavaan::summary(fit.nonr, fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
+
+#Check fit measures
+ob.fit.ind <- fitmeasures (fit.ob, c("gfi", "agfi", "nfi","rfi", "cfi.scaled","tli.scaled","rmsea", "srmr","aic"))
+
+aw.fit.ind <- fitmeasures (fit.aw, c("gfi", "agfi", "nfi","rfi", "cfi.scaled","tli.scaled","rmsea", "srmr","aic"))
+
+##Observe and awareness is accepted.
+
+
+des.fit.ind <- fitmeasures (fit.des, c("gfi", "agfi", "nfi","rfi", "cfi","tli","rmsea", "srmr","aic"))
+nonj.fit.ind <- fitmeasures (fit.nonj, c("gfi", "agfi", "nfi","rfi", "cfi","tli","rmsea", "srmr","aic"))
+
+nonr.fit.ind <- fitmeasures (fit.nonr,c("gfi", "agfi", "nfi","rfi", "cfi","tli","rmsea", "srmr","aic"))
+
+#Reliability
+rel.ob <- reliability(fit.ob)
+rel.des <- reliability(fit.des)
+rel.aw <- reliability(fit.aw)
+rel.nonj <- reliability(fit.nonj)
+rel.nonr <- reliability(fit.nonr)
+```
+
+```{r desmod1, eval=FALSE, include=FALSE}
+modfit.des1 <- modindices(fit.des, sort. = TRUE)
+modfit.des1[modfit.des1$mi>3.84,]
+
+```
+
+```{r des-refit,include =F}
+describe.model.mi <- "Describe =~ item2 + item7 + Ritem12 + Ritem16 + Ritem22 + item27 + item32 + item37
+                                         Ritem16 ~~ Ritem22
+                                         Ritem12	~~	Ritem22
+                                         Ritem12	~~	Ritem16"
+
+fit.des.mi <- cfa(describe.model.mi, data = IRT, ordered = names(IRT),estimator = "WLSMV", mimic = "Mplus")
+lavaan::summary(fit.des.mi, fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
+des.fit.ind.mi <- fitmeasures (fit.des, c("gfi", "agfi", "nfi","rfi", "cfi.scaled","tli.scaled","rmsea", "srmr","aic"))
+
+```
+
+```{r desmod2,eval=FALSE, include=FALSE}
+modfit.des2 <- modindices(fit.des.mi, sort. = TRUE)
+modfit.des2[modfit.des2$mi>3.84,]
+
+```
+
+```{r nonj-mod1,eval=FALSE, include=FALSE}
+modfit.nonj1 <- modindices(fit.nonj, sort. = TRUE)
+modfit.nonj1[modfit.nonj1$mi>3.84,]
+
+```
+
+```{r nonj-refit,include =F}
+#Rtem 3 and Ritem 39 discarded due to loading lower than <.30
+nonjudge.model.mi <- " Nonjudge =~  Ritem10 + Ritem14 + Ritem17 + Ritem25 + Ritem30+ Ritem35
+Ritem14	~~	Ritem17"
+
+fit.nonj.mi <- cfa(nonjudge.model.mi, data = IRT, ordered = names(IRT),estimator = "WLSMV", mimic = "Mplus")
+lavaan::summary(fit.nonj.mi, fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
+nonj.fit.ind.mi <- fitmeasures (fit.nonj.mi, c("gfi", "agfi", "nfi","rfi", "cfi.scaled","tli.scaled","rmsea", "srmr","aic"))
+
+```
+
+```{r nonj-mod2,eval=FALSE, include=FALSE}
+modfit.nonj2 <- modindices(fit.nonj.mi, sort. = TRUE)
+modfit.nonj2[modfit.nonj2$mi>3.84,]
+
+```
+
+```{r nonr-mod1,eval=FALSE, include=FALSE}
+modfit.nonr1 <- modindices(fit.nonr, sort. = TRUE)
+modfit.nonr1[modfit.nonr1$mi>3.84,]
+
+```
+
+```{r nonr-refit, eval=FALSE, include=FALSE}
+
+#Not used in the manuscript
+nonreact.model.mi <- "Nonreact =~ item4 + item9 + item19 + item21 + item24 + item29 + item33 
+                                 item4	~~	item9
+                                  item9	~~	item19"
+
+
+fit.nonr.mi <- cfa(nonreact.model.mi, data = IRT, ordered = names(IRT),estimator = "WLSMV", mimic = "Mplus")
+lavaan::summary(fit.nonr.mi, fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
+nonr.fit.ind.mi <- fitmeasures (fit.nonr.mi, c("gfi", "agfi", "nfi","rfi", "cfi.scaled","tli.scaled","rmsea", "srmr","aic"))
+
+```
+
+```{r nonr-mod2, eval=FALSE, include=FALSE}
+#Not used in the manuscript
+modfit.nonr2 <- modindices(fit.nonr.mi, sort. = TRUE)
+modfit.nonr2[modfit.nonr2$mi>3.84,]
+
+```
+
+```{r uni-rel-final, include =F}
+rel.ob <- reliability(fit.ob)
+rel.des.mi <- reliability(fit.des.mi)
+rel.aw <- reliability(fit.aw)
+rel.nonj.mi <- reliability(fit.nonj.mi)
+#rel.nonr.mi <- reliability(fit.nonr.mi)
+unidim.rel <- as.data.frame(round(c(rel.ob[5,1], rel.des[5,1],rel.des.mi[5,1],rel.aw[5,1],rel.nonj[5,1],rel.nonj.mi[5,1],rel.nonr[5,1]),2))
+
+colnames(unidim.rel) <- "Mcdonald's Omega"
+
+```
+
+```{r Unidim, include =F}
+tab1 <-  tabledown::cfa.tab.multi(fit.ob, fit.des, fit.des.mi,   robust = F)
+tab2 <- tabledown::cfa.tab.multi(fit.aw, fit.nonj, fit.nonj.mi,robust = F)
+tab3 <- tabledown::cfa.tab(fit.nonr,robust = F)
+
+unidimension1 <- rbind(tab1,tab2, tab3)
+unidimension1 <- unidimension1[, -c(4,5)]
+rownames(unidimension1) <- c("Observe", "Describe","Describe (Modified)", "Actwar", "Nonjudge","Nonjudge(Modified)", "Nonreact")
+
+unidimension2 <- cbind(unidimension1,unidim.rel)
+
+
+```
+
+We have checked the assumption of unidimensionality of each facets of BFFMQ through categorical CFA and assessed the fit model fit using CFI, TLI, RMSEA and SRMR values and $\chi^2$ statistic. Table @\ref(tab:Unitab) summarizes the model fit of each facets. All fitted model exhibited a significant $\chi^2$ statistic. However, $\chi^2$ statistic is well known for its sensitivity towards sample size [@RN1231]. As such more emphasize were given towards other fit indices. Other fit indices indicated good fit to "observe" and "actwar" facet. Acceptable fit was observed for "nonreact" facet. Describe facet attained good fit after allowing three pairs of items to covary their error variance in the model( items: 12-22; 12-16; 16-22).  Similarly, "nonjudge" facet achieved best fit after allowing error variance of item 14 and 17 to covary in the model.The internal consistency reliability coeffcients Mcdonald$'$s $\omega_t$ ranged between `r min(unidimension2[10])` to `r max(unidimension2[10])`. These findings allowed us to assume unidimentionality of each facet of the BFFMQ
+
+```{r Unitab, results='asis'}
+apa_table(unidimension2, caption = "Unidimensionality of each Mindfulness facet")
+```
+
+## Item Response Theory
+We fitted each facet to the IRT framework using "graded response" model [@samejima1969estimation]. In IRT we gather evidence on item difficulty and discrimination, item-fit, person-fit, and item and scale information. At first we assessed item-fit using  RMSEA values obtained associated with S-$\chi^2$ statistic. We discarded items that indicated a bad fit (RMSEA >.06) to the model and refitted the revised models. Table@\ref(tab:tab-itemfit) summarizes the item-fit indices for each five facets. Item 2 in describe facet and item14 in nonjudge facet appeared as  misfit to the model thus discarded. In the refitted model of describe facet two more items (item 12 & 16) (Supplementary Table-----) appeared as misfit thus discarded.
+
+```{r IRT1, include =F}
+
+#Define Model
+observe <- IRT %>% 
+  dplyr::select(item1,  item6 , item11 , item15 , item20 , item26 , item31 , item36)
+describe <- IRT %>% 
+  dplyr::select(item2 , item7 , Ritem12 , Ritem16 , Ritem22 , item27 , item32 , item37)
+awareness <- IRT %>% 
+  dplyr::select(Ritem5 , Ritem8 , Ritem13 , Ritem18 , Ritem23 , Ritem28 , Ritem34 , Ritem38)
+nonjudge <- IRT %>% 
+  dplyr::select(Ritem3 , Ritem10 , Ritem14 , Ritem17 , Ritem25 , Ritem30, Ritem35 , Ritem39)
+nonreact <- IRT %>% 
+  dplyr::select(item4 , item9 , item19 , item21 , item24 , item29 , item33)
+
+#Model Fit
+observe.fit <- mirt(observe , model = 1, itemtype = 'graded', 
+               SE = TRUE, Se.type = 'MHRM',
+               technical = list(NCYCLES = 10000))
+describe.fit <- mirt(describe , model = 1, itemtype = 'graded', 
+               SE = TRUE, Se.type = 'MHRM',
+               technical = list(NCYCLES = 10000))
+awareness.fit <- mirt(awareness , model = 1, itemtype = 'graded', 
+               SE = TRUE, Se.type = 'MHRM',
+               technical = list(NCYCLES = 10000))
+nonjudge.fit <- mirt(nonjudge , model = 1, itemtype = 'graded', 
+               SE = TRUE, Se.type = 'MHRM',
+               technical = list(NCYCLES = 10000))
+nonreact.fit <- mirt(nonreact , model = 1, itemtype = 'graded', 
+               SE = TRUE, Se.type = 'MHRM',
+               technical = list(NCYCLES = 10000))
+
+
+# Model Parameters ####
+observe.params <- coef(observe.fit, IRTpars = TRUE, simplify = TRUE, rawug = FALSE) 
+observe.items <- data.frame(observe.params$items)
+observe.se <- coef(observe.fit, printSE = TRUE)
+
+describe.params <- coef(describe.fit, IRTpars = TRUE, simplify = TRUE, rawug = FALSE) 
+describe.items <- data.frame(describe.params$items)
+describe.se <- coef(describe.fit, printSE = TRUE)
+
+
+awareness.params <- coef(awareness.fit, IRTpars = TRUE, simplify = TRUE, rawug = FALSE) 
+awareness.items <- data.frame(awareness.params $items)
+awareness.se <- coef(awareness.fit, printSE = TRUE)
+
+nonjudge.params <- coef(nonjudge.fit, IRTpars = TRUE, simplify = TRUE, rawug = FALSE) 
+nonjudge.items <- data.frame(nonjudge.params $items)
+nonjudge.se <- coef(nonjudge.fit, printSE = TRUE)
+
+nonreact.params <- coef(nonreact.fit, IRTpars = TRUE, simplify = TRUE, rawug = FALSE) 
+nonreact.items <- data.frame(nonreact.params$items)
+nonreact.se <- coef(nonreact.fit, printSE = TRUE)
+
+
+
+#Item fit
+#RMSEA >=.06
+
+observe.item.fit<- itemfit(observe.fit, fit_stats = c("S_X2", "G2","Zh", "infit"),
+                                  impute=10)
+
+
+describe.item.fit<- itemfit(describe.fit, fit_stats = c("S_X2", "G2","Zh", "infit"),
+                                  impute=10)
+
+
+awareness.item.fit<- itemfit(awareness.fit, fit_stats = c("S_X2", "G2","Zh", "infit"),
+                                  impute=10)
+
+nonjudge.item.fit<- itemfit(nonjudge.fit, fit_stats = c("S_X2", "G2","Zh", "infit"),
+                                  impute=10)
+nonreact.item.fit<- itemfit(nonreact.fit, fit_stats = c("S_X2", "G2","Zh", "infit"),
+                                  impute=10)
+
+#Identifying Missfit items based on RMSEA Value
+observe.item_misfits <- subset(observe.item.fit, RMSEA.S_X2 >= .06)
+describe.item_misfits <- subset(describe.item.fit, RMSEA.S_X2 >= .06)
+awareness.item_misfits <- subset(awareness.item.fit, RMSEA.S_X2 >= .06)
+nonjudge.item_misfits <- subset(nonjudge.item.fit, RMSEA.S_X2 >= .06)
+nonreact.item_misfits <- subset(nonreact.item.fit, RMSEA.S_X2 >= .06)
+
+
+
+#Creating Item fit table
+
+all.itemfit <- rbind(observe.item.fit, describe.item.fit,awareness.item.fit,awareness.item.fit,nonjudge.item.fit,nonreact.item.fit )
+al.itemfit <- as.data.frame(all.itemfit)
+
+all.itemfit.selected <- all.itemfit[,c(1,11,12,13,14)]
+
+colnames(all.itemfit.selected) = c("Items",  "S-X2", "df", "p", "RMSEA" )
+
+```
+
+```{r tab-itemfit, results='asis'}
+apa_table(all.itemfit.selected,landscape = F, caption = "Item fit Statistics")
+```
+
+```{r IRT2, include =F}
+#Define revised  model based on item fit
+
+observe.1 <- IRT %>% 
+  dplyr::select(item1,  item6 , item11 , item15 , item20 , item26 , item31 , item36)
+describe.1 <- IRT %>% 
+  dplyr::select( item7 , Ritem12 , Ritem16 , Ritem22 , item27 , item32 , item37)
+awareness.1 <- IRT %>% 
+  dplyr::select(Ritem5 , Ritem8 , Ritem13 , Ritem18 , Ritem23 , Ritem28 , Ritem34 , Ritem38)
+nonjudge.1 <- IRT %>% 
+  dplyr::select(Ritem3 , Ritem10 , Ritem17 , Ritem25 , Ritem30, Ritem35 , Ritem39)
+nonreact.1 <- IRT %>% 
+  dplyr::select(item4 , item9 , item19 , item21 , item24 , item29 , item33)
+
+
+observe.fit.1 <- mirt(observe.1 , model = 1, itemtype = 'graded', 
+               SE = TRUE, Se.type = 'MHRM',
+               technical = list(NCYCLES = 10000))
+describe.fit.1 <- mirt(describe.1 , model = 1, itemtype = 'graded', 
+               SE = TRUE, Se.type = 'MHRM',
+               technical = list(NCYCLES = 10000))
+awareness.fit.1 <- mirt(awareness.1 , model = 1, itemtype = 'graded', 
+               SE = TRUE, Se.type = 'MHRM',
+               technical = list(NCYCLES = 10000))
+nonjudge.fit.1 <- mirt(nonjudge.1 , model = 1, itemtype = 'graded', 
+               SE = TRUE, Se.type = 'MHRM',
+               technical = list(NCYCLES = 10000))
+nonreact.fit.1 <- mirt(nonreact.1 , model = 1, itemtype = 'graded', 
+               SE = TRUE, Se.type = 'MHRM',
+               technical = list(NCYCLES = 10000))
+
+
+observe.item.fit.2<- itemfit(observe.fit.1, fit_stats = c("S_X2", "G2","Zh", "infit"),
+                                  impute=10)
+
+
+describe.item.fit.2<- itemfit(describe.fit.1, fit_stats = c("S_X2", "G2","Zh", "infit"),
+                                  impute=10)
+
+
+awareness.item.fit.2<- itemfit(awareness.fit.1, fit_stats = c("S_X2", "G2","Zh", "infit"),
+                                  impute=10)
+
+nonjudge.item.fit.2<- itemfit(nonjudge.fit.1, fit_stats = c("S_X2", "G2","Zh", "infit"),
+                                  impute=10)
+nonreact.item.fit.2<- itemfit(nonreact.fit.1, fit_stats = c("S_X2", "G2","Zh", "infit"),
+                                  impute=10)
+
+observe.item_misfits.1 <- subset(observe.item.fit.2, RMSEA.S_X2 >= .06)
+describe.item_misfits.1 <- subset(describe.item.fit.2, RMSEA.S_X2 >= .06)
+awareness.item_misfits.1 <- subset(awareness.item.fit.2, RMSEA.S_X2 >= .06)
+nonjudge.item_misfits.1 <- subset(nonjudge.item.fit.2, RMSEA.S_X2 >= .06)
+nonreact.item_misfits.1 <- subset(nonreact.item.fit.2, RMSEA.S_X2 >= .06)
+
+all.itemfit.sa <- rbind(observe.item.fit.2, describe.item.fit.2,awareness.item.fit.2,awareness.item.fit.2,nonjudge.item.fit.2,nonreact.item.fit.2 )
+
+
+all.itemfit.selected.sa <- all.itemfit.sa[,c(1,11,12,13,14)]
+
+colnames(all.itemfit.selected.sa) = c("Items",  "S-X2", "df",  "RMSEA", "p" )
+
+#Export to supplimentary tables: all.itemfit.selected.sa
+
+
+
+```
+
+```{r IRT3, include =F}
+#Define Model
+observe.refit <- IRT %>% 
+  dplyr::select(item1,  item6 , item11 , item15 , item20 , item26 , item31 , item36)
+describe.refit <- IRT %>% 
+  dplyr::select( item7 ,  Ritem22 , item27 , item32 , item37)
+awareness.refit <- IRT %>% 
+  dplyr::select(Ritem5 , Ritem8 , Ritem13 , Ritem18 , Ritem23 , Ritem28 , Ritem34 , Ritem38)
+nonjudge.refit <- IRT %>% 
+  dplyr::select(Ritem3 , Ritem10 , Ritem17 , Ritem25 , Ritem30, Ritem35 , Ritem39)
+nonreact.refit <- IRT %>% 
+  dplyr::select(item4 , item9 , item19 , item21 , item24 , item29 , item33)
+
+#Model Fit
+observe.fit.2 <- mirt(observe.refit , model = 1, itemtype = 'graded', 
+               SE = TRUE, Se.type = 'MHRM',
+               technical = list(NCYCLES = 10000))
+describe.fit.2 <- mirt(describe.refit , model = 1, itemtype = 'graded', 
+               SE = TRUE, Se.type = 'MHRM',
+               technical = list(NCYCLES = 10000))
+awareness.fit.2 <- mirt(awareness.refit , model = 1, itemtype = 'graded', 
+               SE = TRUE, Se.type = 'MHRM',
+               technical = list(NCYCLES = 10000))
+nonjudge.fit.2 <- mirt(nonjudge.refit , model = 1, itemtype = 'graded', 
+               SE = TRUE, Se.type = 'MHRM',
+               technical = list(NCYCLES = 10000))
+nonreact.fit.2 <- mirt(nonreact.refit , model = 1, itemtype = 'graded', 
+               SE = TRUE, Se.type = 'MHRM',
+               technical = list(NCYCLES = 10000))
+
+
+# Model Parameters ####
+observe.params.1 <- coef(observe.fit.2, IRTpars = TRUE, simplify = TRUE, rawug = FALSE) 
+observe.items.1 <- data.frame(observe.params.1$items)
+observe.se.1 <- coef(observe.fit.2, printSE = TRUE)
+
+describe.params.1 <- coef(describe.fit.2, IRTpars = TRUE, simplify = TRUE, rawug = FALSE) 
+describe.items.1 <- data.frame(describe.params.1$items)
+describe.se.1 <- coef(describe.fit.2, printSE = TRUE)
+
+
+awareness.params.1 <- coef(awareness.fit.2, IRTpars = TRUE, simplify = TRUE, rawug = FALSE) 
+awareness.items.1 <- data.frame(awareness.params.1$items)
+awareness.se.1 <- coef(awareness.fit.2, printSE = TRUE)
+
+nonjudge.params.1 <- coef(nonjudge.fit.2, IRTpars = TRUE, simplify = TRUE, rawug = FALSE) 
+nonjudge.items.1 <- data.frame(nonjudge.params.1$items)
+nonjudge.se.1 <- coef(nonjudge.fit.2, printSE = TRUE)
+
+nonreact.params.1 <- coef(nonreact.fit.2, IRTpars = TRUE, simplify = TRUE, rawug = FALSE) 
+nonreact.items.1 <- data.frame(nonreact.params.1$items)
+nonreact.se.1 <- coef(nonreact.fit.2, printSE = TRUE)
+
+# Model Fit (degrees of freedom too low to check model fit)
+#observe.model <- M2(observe.fit)
+#describe.model <- M2(describe.fit)
+#awarenesse.model <- M2(awareness.fit)
+#nonjudge.model <- M2(nonjudge.fit)
+#nonreact.model <- M2(nonreact.fit)
+
+
+#Item fit
+#RMSEA >=.06
+
+observe.item.fit.3<- itemfit(observe.fit.2 , fit_stats = c("S_X2", "G2","Zh", "infit"),
+                                  impute=10)
+
+
+describe.item.fit.3<- itemfit(describe.fit.2, fit_stats = c("S_X2", "G2","Zh", "infit"),
+                                  impute=10)
+
+
+awareness.item.fit.3<- itemfit(awareness.fit.2, fit_stats = c("S_X2", "G2","Zh", "infit"),
+                                  impute=10)
+
+nonjudge.item.fit.3<- itemfit(nonjudge.fit.2, fit_stats = c("S_X2", "G2","Zh", "infit"),
+                                  impute=10)
+nonreact.item.fit.3<- itemfit(nonreact.fit.2, fit_stats = c("S_X2", "G2","Zh", "infit"),
+                                  impute=10)
+
+
+
+all.itemfit.final <- rbind(observe.item.fit.3, describe.item.fit.3,awareness.item.fit.3,nonjudge.item.fit.3,nonreact.item.fit.3 )
+
+
+all.itemfit.selected.fa <- all.itemfit.final[,c(11,12,13,14)]
+
+colnames(all.itemfit.selected.fa) = c("S-X2", "df", "RMSEA", "p" )
+
+items.quality <- rbind(observe.items.1,describe.items.1,awareness.items.1,nonjudge.items.1,nonreact.items.1 )
+
+
+IRT.details <- cbind(round(items.quality,2), round(all.itemfit.selected.fa,2))
+
+# Plots ####
+
+
+## Item inof
+
+observe.IIC.1 <- plot(observe.fit.2, type = "infotrace", facet =T, main = "Observe Item Information Curve")
+describe.IIC.1 <- plot(describe.fit.2, type = "infotrace", facet =T, main = "Describe Item Information Curve")
+awareness.IIC.1 <- plot(awareness.fit.2, type = "infotrace", facet =T, main = "Awareness Item Information Curve")
+nonjudge.IIC.1 <- plot(nonjudge.fit.2, type = "infotrace", facet =T, main = "Nonjudge Item Information Curve")
+nonreact.IIC.1 <- plot(nonreact.fit.2, type = "infotrace", facet =T, main = "Nonreact Item Information Curve")
+
+#plot(nonreact.fit, type = "infotrace", facet =T, which.item =1, main = "Nonreact Item Information Curve")
+
+
+```
+
+
+```{r OCC-irt3, include=F}
+##Option charecteristics curve
+observe.OCC <- plot(observe.fit.2, type = "trace", facet =T, main = "Observe")
+describe.OCC <- plot(describe.fit.2, type = "trace", facet =T, main = "Describe")
+awareness.OCC <- plot(awareness.fit.2, type = "trace", facet =T, main = "Actwar")
+nonjudge.OCC<- plot(nonjudge.fit.2, type = "trace", facet =T, main = "Nonjudge")
+nonreact.OCC<- plot(nonreact.fit.2, type = "trace", facet =T, main = "Nonreact")
+
+```
+
+
+
+```{r ggiteminfo, include=F}
+library(tabledown)
+observe_list = list()
+for (i in 1:ncol(observe.refit)) {
+  p = ggiteminfo(observe.fit.2, i,6)+ggtitle(i)
+  observe_list[[i]] = p
+}
+
+
+describe_list = list()
+for (i in 1:ncol(describe.refit)) {
+  p = ggiteminfo(describe.fit.2, i,6)+ggtitle(i)
+  describe_list[[i]] = p
+}
+
+
+awareness_list = list()
+for (i in 1:ncol(awareness.refit)) {
+  p = ggiteminfo(awareness.fit.2, i,6)+ggtitle(i)
+  awareness_list[[i]] = p
+}
+
+
+nonjudge_list = list()
+for (i in 1:ncol(nonjudge.refit)) {
+  p = ggiteminfo(nonjudge.fit.2, i,6)+ggtitle(i)
+  nonjudge_list[[i]] = p
+}
+
+
+nonreact_list = list()
+for (i in 1:ncol(nonreact.refit)) {
+  p = ggiteminfo(nonreact.fit.2, i,6)+ggtitle(i)
+  nonreact_list[[i]] = p
+}
+
+```
+
+```{r plot-saveloop, eval=FALSE, include=FALSE}
+for (i in 1:ncol(observe.refit)) {
+  
+  temp_plot = ggiteminfo(observe.fit.2, i,6)
+  
+  ggsave(temp_plot, file=paste0("Figures/OBSERVE_", i,".png"), width = 14, height = 10, units = "cm")
+}
+
+
+```
+
+
+
+```{r IRT4, include =F}
+#Define Model
+observe.refit.2 <- IRT %>% 
+  dplyr::select(item1,  item6 , item11 , item15 , item20 , item26 , item31 , item36)
+describe.refit.2 <- IRT %>% 
+  dplyr::select( item7 ,   item27 , item32 , item37)
+awareness.refit.2 <- IRT %>% 
+  dplyr::select(Ritem5 , Ritem8 , Ritem13 , Ritem18 , Ritem23 , Ritem28 , Ritem34)
+nonjudge.refit.2 <- IRT %>% 
+  dplyr::select( Ritem10 , Ritem25 , Ritem30, Ritem35 )
+nonreact.refit.2 <- IRT %>% 
+  dplyr::select(item4 , item9 , item19 , item21 , item24 , item29 , item33)
+
+
+
+
+#Model Fit
+observe.fit.3 <- mirt(observe.refit.2 , model = 1, itemtype = 'graded', 
+               SE = TRUE, Se.type = 'MHRM',
+               technical = list(NCYCLES = 10000))
+describe.fit.3 <- mirt(describe.refit.2 , model = 1, itemtype = 'graded', 
+               SE = TRUE, Se.type = 'MHRM',
+               technical = list(NCYCLES = 10000))
+awareness.fit.3 <- mirt(awareness.refit.2 , model = 1, itemtype = 'graded', 
+               SE = TRUE, Se.type = 'MHRM',
+               technical = list(NCYCLES = 10000))
+nonjudge.fit.3 <- mirt(nonjudge.refit.2 , model = 1, itemtype = 'graded', 
+               SE = TRUE, Se.type = 'MHRM',
+               technical = list(NCYCLES = 10000))
+nonreact.fit.3 <- mirt(nonreact.refit.2 , model = 1, itemtype = 'graded', 
+               SE = TRUE, Se.type = 'MHRM',
+               technical = list(NCYCLES = 10000))
+
+
+# Model Parameters ####
+observe.params.2 <- coef(observe.fit.3, IRTpars = TRUE, simplify = TRUE, rawug = FALSE) 
+observe.items.2 <- data.frame(observe.params.2$items)
+observe.se.2 <- coef(observe.fit.3, printSE = TRUE)
+
+describe.params.2 <- coef(describe.fit.3, IRTpars = TRUE, simplify = TRUE, rawug = FALSE) 
+describe.items.2 <- data.frame(describe.params.2$items)
+describe.se.2 <- coef(describe.fit.3, printSE = TRUE)
+
+
+awareness.params.2 <- coef(awareness.fit.3, IRTpars = TRUE, simplify = TRUE, rawug = FALSE) 
+awareness.items.2 <- data.frame(awareness.params.2$items)
+awareness.se.2 <- coef(awareness.fit.3, printSE = TRUE)
+
+nonjudge.params.2 <- coef(nonjudge.fit.3, IRTpars = TRUE, simplify = TRUE, rawug = FALSE) 
+nonjudge.items.2 <- data.frame(nonjudge.params.2$items)
+nonjudge.se.2 <- coef(nonjudge.fit.3, printSE = TRUE)
+
+nonreact.params.2 <- coef(nonreact.fit.3, IRTpars = TRUE, simplify = TRUE, rawug = FALSE) 
+nonreact.items.2 <- data.frame(nonreact.params.2$items)
+nonreact.se.2 <- coef(nonreact.fit.3, printSE = TRUE)
+
+# Model Fit (degrees of freedom too low to check model fit)
+#observe.model <- M2(observe.fit.3)
+#describe.model <- M2(describe.fit)
+#awarenesse.model <- M2(awareness.fit)
+#nonjudge.model <- M2(nonjudge.fit)
+#nonreact.model <- M2(nonreact.fit)
+
+
+#Item fit
+#RMSEA >=.06
+
+observe.item.fit.4<- itemfit(observe.fit.3 , fit_stats = c("S_X2", "G2","Zh", "infit"),
+                                  impute=10)
+
+
+describe.item.fit.4<- itemfit(describe.fit.3, fit_stats = c("S_X2", "G2","Zh", "infit"),
+                                  impute=10)
+
+
+awareness.item.fit.4<- itemfit(awareness.fit.3, fit_stats = c("S_X2", "G2","Zh", "infit"),
+                                  impute=10)
+
+nonjudge.item.fit.4<- itemfit(nonjudge.fit.3, fit_stats = c("S_X2", "G2","Zh", "infit"),
+                                  impute=10)
+nonreact.item.fit.4<- itemfit(nonreact.fit.3, fit_stats = c("S_X2", "G2","Zh", "infit"),
+                                  impute=10)
+
+
+
+all.itemfit.final.1 <- rbind(observe.item.fit.4, describe.item.fit.4,awareness.item.fit.4,nonjudge.item.fit.4,nonreact.item.fit.4 )
+
+
+all.itemfit.selected.fa.1 <- all.itemfit.final.1[,c(11,12,13,14)]
+
+colnames(all.itemfit.selected.fa.1) = c("S-X2", "df", "RMSEA", "p" )
+
+items.quality.2 <- rbind(observe.items.2,describe.items.2,awareness.items.2,nonjudge.items.2,nonreact.items.2 )
+
+
+IRT.details.1 <- cbind(round(items.quality.2,2), round(all.itemfit.selected.fa.1,2))
+
+```
+
+Table \@ref(tab:IRT-tab1) summarizes the item discrimination and discrimination parameters of retained items with their item fit indices. @RN1275 suggested the optimum range of item discrimination,a is .5 $\leq$ a $\leq$ 2. All items except item:38 and 39 were within this suggested limits. 
+
+```{r item-categorization, include =F}
+very.low <- sum(IRT.details.1$a >=.10 & IRT.details.1$a<.34, na.rm=TRUE)
+low <- sum(IRT.details.1$a >=.34 & IRT.details.1$a<.64, na.rm=TRUE)
+moderate <- sum(IRT.details.1$a >=.64 & IRT.details.1$a<1.34, na.rm=TRUE)
+high <- sum(IRT.details.1$a >=1.34 & IRT.details.1$a<1.69, na.rm=TRUE)
+very.high <- sum(IRT.details.1$a >=1.69, na.rm=TRUE)
+
+```
+
+Item information curve (IIC)  indicate the amount of information an item carry along the latent trait continuum (supplimentary Figure--------). Upon inspection we identified 4 items (22, 38, 39, 3) with relatively flat curve  (I($\theta$)<.20). Option Characteristics Curves (OCC) showed the probability of endorsing each response choice (y-axis) as a function of underlying latent trait( x-axis). The OCCs (Figure \@ref(fig:fig-occ)) showed all items except items 38,22, 39, 3, and 17 had appropriately monotonically ordered response options.
+
+```{r fig-occ, fig.cap= "Option Charecteristics curve (A) Observe, (B) Describe, (C)Act with awareness, (D)Nonjudgement, (E) Nonreact" , results= 'asis'}
+cowplot::plot_grid(observe.OCC, describe.OCC, awareness.OCC, nonjudge.OCC, nonreact.OCC, labels = "AUTO",ncol=2, label_size = 8,align = "v")
+```
+
+Subsequently, we discarded five items for being outside the suggested item discrimination  guidelines, inappropriate monotonocity  and/or relatively flat information curve (item 22, 38, 39, 3,17) and refitted the revised models. For the revised models, we categorize the item discrimination (a) presented in table \@ref(tab:IRT-tab2) using the following criteria of @RN1275, none = 0; very low =0.01 to 0.34; low = 0.35 to 0.64; moderate = 0.65 to 1.34 ; high = 1.35 to 1.69; very high >1.70. Among the `r nrow(IRT.details.1)`items, `r moderate` items had moderate discrimination,  `r high` had high discrimination and `r very.high` items had very high discrimination.  For all items, each of the response options are likely to be selected for some level of underlying level of mindfulness.
+
+Person fit indicates the validity and meaningfulness of the fitted model at the participants latent trait level [@Desjardins]. We estimated the person fit statistics using standardized fit index Zh statistics [@drasgow1985appropriateness]. Fig\@ref(fig:person-fit) indicates that Zh is larger than -2 for most participants, suggesting a good person-fit of the fitted IRT models.
+
+```{r IRT-tab1, results='asis'}
+apa_table(IRT.details,landscape = F, caption = "IRT Description")
+```
+
+```{r IRT-tab2, results='asis'}
+apa_table(IRT.details.1,landscape = F, caption = "IRT Description")
+```
+
+```{r ggplot2, include=F}
+apatheme=theme_bw()+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        #text=element_text(family = "Helvetica",),
+        legend.title=element_blank(),
+        axis.line.x = element_line(color='black'),
+        axis.line.y = element_line(color='black'),
+        panel.border = element_rect(color = "black",
+                                    fill = NA,
+                                    size = 1))
+```
+
+```{r OCC, include=F}
+##Option charecteristics curve
+observe.OCC.1 <- plot(observe.fit.3, type = "trace", facet =T, main = "Observe")
+describe.OCC.1 <- plot(describe.fit.3, type = "trace", facet =T, main = "Describe")
+awareness.OCC.1 <- plot(awareness.fit.3, type = "trace", facet =T, main = "Actwar")
+nonjudge.OCC.1 <- plot(nonjudge.fit.3, type = "trace", facet =T, main = "Nonjudge")
+nonreact.OCC.1 <- plot(nonreact.fit.3, type = "trace", facet =T, main = "Nonreact")
+
+```
+
+
+
+```{r personfitd, include=FALSE}
+#Person Fit ####
+
+observe.personfit <- personfit(observe.fit.3) 
+observe.personfit_model_misfits <- subset(observe.personfit, Zh < -2)
+rownames(observe.personfit_model_misfits)
+nrow(observe.personfit_model_misfits)
+observe.per.fit <- ggplot(observe.personfit, aes(x=Zh)) + geom_histogram(binwidth=.4)+geom_vline(xintercept = -2)+
+  labs( y="Number of Participants", x = "Zh Statistics:Observe")+apatheme
+
+
+des.personfit <- personfit(describe.fit.3) 
+des.personfit_model_misfits <- subset(des.personfit, Zh < -2)
+rownames(des.personfit_model_misfits)
+nrow(des.personfit_model_misfits)
+des.per.fit <- ggplot(des.personfit, aes(x=Zh)) + geom_histogram(binwidth=.4)+geom_vline(xintercept = -2)+
+  labs( y="Number of Participants", x = "Zh Statistics:Describe")+apatheme
+
+
+
+act.personfit <- personfit(awareness.fit.3) 
+act.personfit_model_misfits <- subset(act.personfit, Zh < -2)
+rownames(act.personfit_model_misfits)
+nrow(act.personfit_model_misfits)
+act.per.fit <- ggplot(act.personfit, aes(x=Zh)) + geom_histogram(binwidth=.4)+geom_vline(xintercept = -2)+
+  labs( y="Number of Participants", x = "Zh Statistics:Actware")+apatheme
+
+
+
+nonj.personfit <- personfit(nonjudge.fit.3) 
+nonj.personfit_model_misfits <- subset(nonj.personfit, Zh < -2)
+rownames(nonj.personfit_model_misfits)
+nrow(nonj.personfit_model_misfits)
+nonj.per.fit <- ggplot(nonj.personfit, aes(x=Zh)) + geom_histogram(binwidth=.4)+geom_vline(xintercept = -2)+
+  labs( y="Number of Participants", x = "Zh Statistics:Nonjudge")+apatheme
+
+
+
+nonr.personfit <- personfit(nonreact.fit.3) 
+nonr.personfit_model_misfits <- subset(nonr.personfit, Zh < -2)
+rownames(nonr.personfit_model_misfits)
+nrow(nonr.personfit_model_misfits)
+nonj.per.fit <- ggplot(nonr.personfit, aes(x=Zh)) + geom_histogram(binwidth=.4)+geom_vline(xintercept = -2)+
+  labs( y="Number of Participants", x = "Zh Statistics:Nonreact")+apatheme
+
+
+
+
+```
+
+```{r person-fit, fig.cap= "Person Fit of the Five fitted Models (A) Observe, (B) Describe, (C)Act with awareness, (D)Nonjudgement, (E) Nonreact" , results= 'asis'}
+cowplot::plot_grid(observe.per.fit, des.per.fit, act.per.fit, nonj.per.fit, nonj.per.fit, labels = "AUTO",ncol=3, label_size = 8,align = "v")
+```
+
+```{r TIC, include=F}
+##Test info
+
+observe.TIC.1 <- plot(observe.fit.3, type = "infoSE", facet =T, main = "Observe Test Information Curve")
+describe.TIC.1 <- plot(describe.fit.3, type = "infoSE", facet =T, main = "Describe Test Information Curve")
+awareness.TIC.1 <- plot(awareness.fit.3, type = "infoSE", facet =T, main = "Awareness Test Information Curve")
+nonjudge.TIC.1 <- plot(nonjudge.fit.3, type = "infoSE", facet =T, main = "Nonjudge Test Information Curve")
+nonreact.TIC.1 <- plot(nonreact.fit.3, type = "infoSE", facet =T, main = "Nonreact Test Information Curve")
+#,theta_lim = c(-3, 3)
+
+```
+
+```{r con-rel, include =F}
+#conditional reliability
+observe.reliability <- plot(observe.fit.3, type = 'rxx', theta_lim = c(-6, 6), 
+      main="" )
+
+describe.reliability <- plot(describe.fit.3, type = 'rxx', theta_lim = c(-6, 6), 
+      main="" )
+awareness.reliability <- plot(awareness.fit.3, type = 'rxx', theta_lim = c(-6, 6), 
+      main="" )
+nonjudge.reliability <- plot(nonjudge.fit.3, type = 'rxx', theta_lim = c(-6, 6), 
+      main="" )
+nonreact.reliability <- plot(nonreact.fit.3, type = 'rxx', theta_lim = c(-6, 6), 
+      main="" )
+
+marginal.rel.observe <- marginal_rxx(observe.fit.3)
+marginal.rel.describe <- marginal_rxx(describe.fit.3)
+marginal.rel.awareness <- marginal_rxx(awareness.fit.3)
+marginal.rel.nonjudge <- marginal_rxx(nonjudge.fit.3)
+marginal.rel.nonreact <- marginal_rxx(nonreact.fit.3)
+
+#scale characteristics curve
+scale.observe <- plot(observe.fit.3, type = 'score', theta_lim = c(-6, 6), main = "")
+scale.describe <- plot(describe.fit.3, type = 'score', theta_lim = c(-6, 6), main = "")
+scale.awareness  <- plot(awareness.fit.3, type = 'score', theta_lim = c(-6, 6), main = "")
+scale.nonjudge <- plot(nonjudge.fit.3, type = 'score', theta_lim = c(-6, 6), main = "")
+scale.nonreact <- plot(nonreact.fit.3, type = 'score', theta_lim = c(-6, 6), main = "")
+```
+
+Test information curves with standard error for the revised models (Fig \@ref(fig:TIC-fig)) indicated that each facet had a good range of coverage across the underlying measured traits with least amount or errors ranging between -2 to 2 $\theta$ range (Fig \@ref(fig:TIC-fig)). Conditional reliability plots (Fig \@ref(fig: conrel-fig)) also indicated the scales were most reliably estimating scores between -2 to 2 $\theta$ range. The marginal reliability estimates of the five facets were observe= `r round(marginal.rel.observe,2)`, describe = `r round(marginal.rel.describe,2)`, actware = `r round(marginal.rel.awareness,2)`, nonjudge = `r round(marginal.rel.nonjudge,2)`, nonreact = `r round(marginal.rel.nonreact,2)`. Thus we conferred the fitted models  covers a wide range of underlying mindfulness facets and the precision is highest for the estimated scores across $\theta$ range -2 to 2. 
+
+```{r TIC-fig, fig.cap= "Test information Curves: (A) Observe, (B) Describe, (C)Act with awareness, (D)Nonjudgement, (E) Nonreact", results='asis'}
+cowplot::plot_grid(observe.TIC.1, describe.TIC.1, awareness.TIC.1, nonjudge.TIC.1, nonreact.TIC.1, labels = "AUTO",ncol=2, label_size = 8,align = "v")
+```
+
+```{r conrel-fig, fig.cap= "Conditional Reliability plots: (A) Observe, (B) Describe, (C)Act with awareness", results='asis'}
+cowplot::plot_grid(observe.reliability, describe.reliability, awareness.reliability, nonjudge.reliability, nonreact.reliability, labels = "AUTO",ncol=2, label_size = 8,align = "v")
+```
+
+
+
+```{r estimation, include=F}
+observe.estimation <- as.vector(fscores(observe.fit.3, method = "EAP",
+                                           full.scores = TRUE, 
+                                           full.scores.SE = F))
+
+
+describe.estimation <- as.vector(fscores(describe.fit.3, method = "EAP",
+                                           full.scores = TRUE, 
+                                           full.scores.SE = F))
+
+awareness.estimation <- as.vector(fscores(awareness.fit.3, method = "EAP",
+                                           full.scores = TRUE, 
+                                           full.scores.SE = F))
+
+nonjudge.estimation <- as.vector(fscores(nonjudge.fit.3, method = "EAP",
+                                           full.scores = TRUE, 
+                                           full.scores.SE = F))
+
+nonreact.estimation <- as.vector(fscores(nonreact.fit.3, method = "EAP",
+                                           full.scores = TRUE, 
+                                           full.scores.SE = F))
+
+```
+
+```{r WPdata, eval=FALSE, warning=FALSE, include=FALSE}
+
+library(RColorBrewer)
+observe.e <- as.data.frame(observe.estimation)
+describe.e <- as.data.frame(describe.estimation)
+awareness.e <- as.data.frame(awareness.estimation)
+nonjudge.e <- as.data.frame(nonjudge.estimation)
+nonreact.e <- as.data.frame(nonreact.estimation)
+
+estimation <- as.data.frame(cbind(observe.e,describe.e,awareness.e,nonjudge.e,nonreact.e))
+
+
+threshold <- rbind(observe.items.2[,2:5],
+                   describe.items.2[,2:5],
+                   awareness.items.2[,2:5],
+                   nonjudge.items.2[,2:5],
+                   nonreact.items.2[,2:5])
+
+
+itemlevelcolors <- matrix(rep(brewer.pal(4, "Set1"), 31), byrow = TRUE, ncol = 4)
+
+```
+
+```{r saveWrightmao, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+jpeg("Figures/wp.png", width = 800, height = 750)
+WrightMap::wrightMap(estimation, threshold, 
+          item.prop = 0.65,
+          main.title = "Five Facet Mindfulness Questionnaire",
+          dim.names = c("Observe", "Describe", "Actware", "Nonjudge", "Nonreact"),
+          thr.sym.col.fg = itemlevelcolors,
+          thr.sym.col.bg = itemlevelcolors,
+          vertLines = TRUE,
+          show.thr.lab = F,
+          dim.color = brewer.pal(5, "Set3"),
+          label.items.srt = 45
+          )
+
+```
+
+```{r WP, eval=FALSE, fig.cap="Person Item Map", warning=FALSE, include=FALSE, out.height="120%", out.width="100%"}
+
+knitr::include_graphics('Figures/wp.png')
+```
+
+
+```{r DIF, eval=FALSE, include=FALSE}
+library("lordif")
+Observe.DIF <- lordif(as.data.frame(observe.refit.2), data$Gender, criterion = "Chisqr")
+Describe.DIF <-lordif(as.data.frame(describe.refit.2 ), data$Gender, criterion = "Chisqr")
+Actware.DIF <- lordif(as.data.frame(awareness.refit.2 ), data$Gender, criterion = "Chisqr")
+Nonjudge.DIF <- lordif(as.data.frame(nonjudge.refit.2), data$Gender, criterion = "Chisqr")
+Nonreact.DIF <- lordif(as.data.frame(nonreact.refit.2), data$Gender, criterion = "Chisqr")
+
+```
+
+```{r CFA-irt, include =F}
+
+FF.irt.1 <- "Observe =~ item1+item6 + item11 + item15 + item20 + item26 + item31 + item36
+          Describe =~  item7 + item27+ item32 + item37
+          Awareness =~ Ritem5+ Ritem8 + Ritem13 + Ritem18 + Ritem23 + Ritem28 + Ritem34
+          Nonjudge =~ Ritem10 +  Ritem25 + Ritem30 +Ritem35
+          Nonreact =~ item4+ item9 + item19 + item21 + item24 + item29 + item33"
+
+
+
+fit.irt.1 <- cfa(FF.irt.1, data = IRT, ordered = names(IRT),estimator = "WLSMV", mimic = "Mplus", test="standard")
+
+
+lavaan::summary(fit.irt.1 , fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
+
+
+fitmeasures (fit.irt.1,c("gfi", "agfi", "nfi","rfi", "cfi","tli","rmsea", "srmr","aic"))
+
+reliability(fit.irt.1, return.total = TRUE)
+
+```
+
+```{r CFA-5H, include =F}
+
+FF.irt.H <- "Observe =~ item1+item6 + item11 + item15 + item20 + item26 + item31 + item36
+          Describe =~  item7 + item27+ item32 + item37
+          Awareness =~ Ritem5+ Ritem8 + Ritem13 + Ritem18 + Ritem23 + Ritem28 + Ritem34
+          Nonjudge =~ Ritem10 +  Ritem25 + Ritem30 +Ritem35
+          Nonreact =~ item4+ item9 + item19 + item21 + item24 + item29 + item33
+mindfulness =~  Observe+Describe + Awareness+Nonjudge+Nonjudge+Nonreact
+                                 "
+
+
+fit.irt.H <- cfa(FF.irt.H, data = IRT, ordered = names(IRT),estimator = "WLSMV", mimic = "Mplus", test="standard")
+
+
+
+
+lavaan::summary(fit.irt.H , fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
+
+
+fitmeasures (fit.irt.H,c("gfi", "agfi", "nfi","rfi", "cfi","tli","rmsea", "srmr","aic"))
+
+reliability(fit.irt.H, return.total = TRUE)
+
+```
+
+```{r mod1, eval=FALSE, include=FALSE}
+modfit.or <- modindices(fit.irt.H, sort. = TRUE)
+modfit.or[modfit.or$mi>3.84,]
+```
+
+```{r Shortcut-Invariance, eval=FALSE, include=FALSE}
+library("semTools")
+
+FF.irt.1 <- "Observe =~ item6 + item11 + item15 + item20 + item26 + item31 + item36
+          Describe =~  item7 + item27+ item32 + item37
+          Awareness =~ Ritem5+ Ritem8 + Ritem13 + Ritem18 + Ritem23 + Ritem28 + Ritem34
+          Nonjudge =~ Ritem10 +  Ritem25 + Ritem30 +Ritem35
+          Nonreact =~  item9 + item19 + item21 + item24 + item29 + item33
+          
+"
+invariance.model <- measurementInvariance(model = FF.irt.1,
+                                          data = data,
+                                          group = "Gender",
+                                          ordered = names(data),
+                                          estimator = "WLSMV",
+                                          strict = T)
+
+
+
+
+invariance.model[[1]] #configural Invariance
+invariance.model[[2]] # loading, weak, metric
+invariance.model[[3]] # intercept, strong, scaler
+invariance.model[[4]] # residual, strict
+invariance.model[[5]] # means, structural invariance
+```
+
+```{r Invariancedetail, eval=FALSE, include=FALSE}
+# Configural invariance ####
+
+
+configural <- cfa(model = FF.irt.1,
+                  data = data,
+                  group = "Gender",
+                  ordered = names(data),
+                  estimator = "WLSMV")
+
+summary(configural, fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
+
+fitmeasures (configural,c("gfi", "agfi", "nfi","rfi", 
+                       "cfi","tli",
+                       "rmsea", "rmsea.ci.lower", "rmsea.ci.upper","srmr"))
+
+#Metric
+weak <- cfa(model = FF.irt.1,
+                  data = data,
+                  group = "Gender",
+                  ordered =   names(data),
+                  estimator = "WLSMV", 
+            group.equal = "loadings")
+            
+summary(weak, fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
+
+
+fitmeasures (weak,c("gfi", "agfi", "nfi","rfi", 
+                       "cfi","tli",
+                       "rmsea", "rmsea.ci.lower", "rmsea.ci.upper","srmr"))
+
+First.comp <- compareFit (configural, weak)
+summary(First.comp)
+
+
+
+#Scaler
+strong <- cfa(model = FF.irt.1,
+                  data = data,
+                  group = "Gender",
+                  ordered =   names(data),
+                  estimator = "WLSMV", 
+              group.equal = c("loadings", "intercepts"))
+summary(strong, fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
+
+Second.comp <- compareFit  (weak, strong)
+summary(Second.comp)
+
+#residual
+strict <- cfa(model = FF.irt.1,
+                  data = data,
+                  group = "Gender",
+                  ordered =   names(data),
+                  estimator = "WLSMV",  
+              group.equal = c("loadings", "intercepts", "residuals")) 
+
+summary(strict, fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
+fitmeasures (strict,c("gfi", "agfi", "nfi","rfi", "cfi","tli","rmsea", "srmr","aic"))
+
+Third.comp <- compareFit(strict,strong)
+summary(Third.comp)
+#structural
+structural <-cfa(model = FF.irt.1,
+                  data = data,
+                  group = "Gender",
+                  ordered =   names(data),
+                  estimator = "WLSMV",  
+                 group.equal = c("loadings", "intercepts", "residuals", "means","lv.variances","lv.covariances"))
+
+summary(structural, fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
+fitmeasures (structural,c("gfi", "agfi", "nfi","rfi", "cfi","tli","rmsea", "srmr","aic"))
+
+fourth.comp <- compareFit  (structural,strict)
+summary(fourth.comp)
+comfit.par <- compareFit(configural, weak, strong, strict)
+summary (comfit.par)
+
+models <-  list("Configural" = configural, 
+                "Metric" = weak, 
+                "Scalar" = strong, 
+                "Residual" = strict)
+
+
+
+Invariance.table <- compareLavaan(models,
+              nesting = "Configural > Metric > Scalar > Residual", 
+              fitmeas = c("chisq.scaled", "df",  "cfi","tli","rmsea", "rmsea.ci.lower.scaled", "rmsea.ci.upper.scaled" ),
+              scaled = F,
+              chidif = T, digits = 2)
+
+colnames(Invariance.table) <- c("Chi-Square", "df", "CFI", "TLI", "RMSEA", "RMSEA 90% Lower CI", "RMSEA 90% Upper", "Chi-Square Difference", "df difference*", "p")
+
+
+```
+
+```{r InvarianceTab, eval=FALSE, include=FALSE, results='asis'}
+apa_table(Invariance.table, align = "c",  caption = "Invariance Analysis", note = " a = Metric vs Configural; b = Scalar vs Metric; c = Residual vs Scalar; d = Structural vs Residual;* =  df of model comparison", landscape = T, font_size = "footnotesize" )
+
+```
+
+```{r figcfa, fig.cap = "(A) ", fig.show="hold",fig.ncol = 2, out.width="50%",  warning=FALSE}
+library(semPlot)
+
+semPaths (fit.irt.1 , 
+          what= "std",
+          #whatLabels = "std",
+          intercepts = F,
+          style ="lisrel",
+          #residScale = 6,
+          theme = "colorblind",
+          nCharNodes = 0,
+          reorder =T,
+          rotation =2,
+          layout ="tree",
+          cardinal = T,
+          curvePivot =T,
+          sizeMan =8,
+          sizeMan2 = 1.5,
+          sizeLat = 8,
+          edge.color = "black",
+          thresholds = FALSE,
+          equalizeManifests =T,
+          fade = FALSE,
+          edge.label.cex = .65,
+          exoCov = F)
+
+
+
+
+```
+
+#Validity analysis
+
+```{r validity, include =F}
+
+validity <- subset(data, Sample == "Correlational Analysis")
+
+#CFA.descriptives <- descriptives.data[429:690, ]
+
+EI<- as.data.frame(lapply(validity[, 48:78],as.numeric))
+
+EI_total <- EI %>% 
+  rowwise() %>% 
+  mutate(EI_Total = sum(across(starts_with("EI")), na.rm = T))
+
+validity$EI_Total <-  EI_total$EI_Total 
+
+validity <- validity %>% 
+  rowwise() %>% 
+  mutate(observe_total = sum(item6 , item11 , item15 , item20 , item26 , item31 , item36))
+
+validity <- validity %>% 
+  rowwise() %>% 
+  mutate(describe_total = sum( item7 ,  item27 , item32 , item37))
+
+validity <- validity %>% 
+  rowwise() %>% 
+  mutate(awareness_total = sum( Ritem5, Ritem8 , Ritem13 , Ritem18 , Ritem23 , Ritem28 , Ritem34))
+
+validity <- validity %>% 
+  rowwise() %>% 
+  mutate(nonjudge_total = sum(Ritem10 ,  Ritem25 , Ritem30, Ritem35))
+
+validity <- validity %>% 
+  rowwise() %>% 
+  mutate(nonreact_total = sum( item9 , item19 , item21 , item24 , item29 , item33))
+
+
+
+validity <- validity %>% 
+  rowwise() %>% 
+  mutate(GHQ_Total = sum(RGHQ1,RGHQ3, RGHQ4, RGHQ7, RGHQ8, RGHQ9,GHQ2, GHQ5, GHQ6, GHQ10, GHQ11  ,na.rm = T))
+
+
+
+validity <- validity %>% 
+  rowwise() %>% 
+  mutate(Depression_Total = sum(across(starts_with("D")), na.rm = T))
+
+validity <- validity %>% 
+  rowwise() %>% 
+  mutate(MASS_Total = sum(M1, M2, M3,M4, M5, M6, M7, M8, M9, M10, M11,M12, M13, M14, M15,na.rm = T))
+
+validity <- validity %>% 
+  rowwise() %>% 
+  mutate(Openness_Total = sum(O1, O2, O3,O4, O5, O6, RO7, O8, RO9, O10,na.rm = T))
+
+
+validity <- validity %>% 
+  rowwise() %>% 
+  mutate(Extraversion_Total = sum(E1, RE2, E3,E4, RE5, E6, RE7, E8,na.rm = T))
+
+
+validity <- validity %>% 
+  rowwise() %>% 
+  mutate(Neurotic_Total = sum(N1, RN2, N3,N4, RN5, N6, RN7, N8,na.rm = T))
+
+
+validity.cor <- validity %>% 
+  dplyr::select(observe_total:nonreact_total, EI_Total, Depression_Total,MASS_Total,Openness_Total,Neurotic_Total)
+
+
+validity.cor <- data.frame(validity.cor)
+colnames(validity.cor) =c ("Observe", "Describe", "Awarenness", "Nonjudge", "Nonreact", "EI",  "Depression", "MASS", "Openness",  "Neuroticism")
+
+
+
+```
+
+```{r correlationfunc, include =F}
+glrstab<- function(x, export=FALSE) {
+ 
+ r <-corr.test(x)$r	#taking just the correlation matrix; no N, or p
+ p <-corr.test(x)$p	#taking the p*s
+ 
+#define notions for significance levels
+ mystars <- ifelse(p < .001, "**"
+                   , ifelse(p < .01, "**"
+                            , ifelse(p < .05, "*"
+                                     , ifelse(p < .10, "+", " "))))
+ 
+ #round r, define new matrix Rnew with the correlations from rnd and paste mystars
+ rnd  <- papaja::printnum(r, gt1 = FALSE, digits = 2)  #round, drop leading 0 - Thanks CRSH!								                     
+ Rnew <- matrix(paste(rnd, mystars, sep=""), ncol=ncol(rnd)) 
+ 
+  #remove 1.0 correlations from diagonal  and set the strings
+ diag(Rnew) <- ''		
+ Rnew[upper.tri(Rnew)] <- ''								                	
+ 
+ rownames(Rnew) <- paste(1:ncol(rnd), colnames(rnd), sep=" ")         #define number and name
+ colnames(Rnew) <- paste(1:ncol(rnd), "", sep="") 			       #define number
+ 
+#fun-part: we trim the top half 
+ Rnew[upper.tri(Rnew)] <- ''			
+ Rnew
+ 
+ #Rnew <- cbind(round(describe(x)[,3:4],2), Rnew)		     #describe x, M sD - put them in the matrix
+ #colnames(Rnew)[1:2] <- c("M","SD")					      		#Beschriftung der neuen Spalten
+ Rnew <- Rnew[,1:(ncol(Rnew)-1)]							        	#delete the last column (ugly)
+ 
+ #export to clipboard
+ 
+   if (export==TRUE){
+   result<-write.table(Rnew
+                       , "clipboard"
+                       , sep=";"
+                       , row.names=FALSE)
+ }
+ else result <- Rnew
+ return(result)
+ 
+}
+
+```
+
+
+```{r correlations, include =F}
+Cor <-glrstab(validity.cor) #the function in action!
+
+cor.tab <- as_tibble(cor(validity.cor))
+
+```
+
+```{r tabvalidity,  results='asis'}
+papaja::apa_table(Cor, escape  = FALSE
+                , caption = "Correlation matrix of the main variables"
+                , note    = "**p < .001")
+```
+
+We gathered convergent and divergent validity evidence of BFFMQ on a subset of our sample (n= `r nrow(validity)`).  We gathered convergent validity evidence based on correlational analysis. Table\@ref(tab:tabvalidity) summarized the inter correlation of the five mindfulness facets as well as correlation coefficients of these facets  with emotional intelligence [@hydePsychologicalTestManual2002], depression [@uddinDevelopmentScaleDepression2005], MAAS [@brownBenefitsBeingPresent2003; @islamValidationBanglaMindful2016], and three  measures of personality: openness, extroversion and neuroticism [@RN1278; @RN1287; @RN1288]. Table\@ref(tab:tabvalidity) indicated inter-correlations of the five facets were in general modest and significant (only three pairs: observe with actware, describe with nonjudge, and nonreact with actware were non-significant). Nonjudge was significantly negatively correlated with observe ( r = `r round(cor.tab[4,1],2)`, p < .01). Nonreact was significantly negatively correlated with   awareness ( r = `r round(cor.tab[5,4],2)`, p < .01). By judging the underlying construct and item contents of BFFMQ we expected  positive correleation among facets of BFFQ and emotional intelligence, MASS and openness since these constructs incorporate the elements of mindfulness [@baerUsingSelfReportAssessment2006]. And with neuroticism and depression negative correlations were expected as neuroticism to some extent reflect the absence of mindfulness [@baerUsingSelfReportAssessment2006]. Table\@ref(tab:tabvalidity) indicated that our directional findings of the correlations were almost consistent with our prediction. Emotional intelligence was significantly positively correlated with four facets (negatively correlated with nonjudgement, r =`r round(cor.tab[6,4],2)` p>.05 ). MASS was positively correlated with all five facets of mindfulness. Depression and neuroticism were negatively correlated with all the five facets.
+
+
+
+
+```{r Regression, eval=FALSE, include=FALSE}
+library(lessR)
+
+EI.regression <- lessR::Regression(EI ~ Observe + Describe +	Awareness  +	Nonjudge +	Nonreact, data =validity.cor )
+Depression.regression <- lessR::Regression(EI ~ Depression + Describe +	Awareness  +	Nonjudge +	Nonreact, data =validity.cor )
+MASS.regression <- lessR::Regression(MASS ~ Depression + Describe +	Awareness  +	Nonjudge +	Nonreact, data =validity.cor)
+Openness.regression <- lessR::Regression(Openness ~ Depression + Describe +	Awareness  +	Nonjudge +	Nonreact, data =validity.cor )
+Extraversion.regression <- lessR::Regression(Extraversion ~ Depression + Describe +	Awareness  +	Nonjudge +	Nonreact, data =validity.cor )
+Neurotic.regression <- lessR::Regression(Neurotic ~ Depression + Describe +	Awareness  +	Nonjudge +	Nonreact, data =validity.cor )
+
+
+ 
+```
+
+
+
+# Discussion
+
+
+\newpage
+
+# References
+
+\begingroup
+\setlength{\parindent}{-0.5in}
+\setlength{\leftskip}{0.5in}
+
+<div id="refs" custom-style="Bibliography"></div>
+\endgroup

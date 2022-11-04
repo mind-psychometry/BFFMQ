@@ -1257,18 +1257,18 @@ icc.legend <- cowplot::get_legend(icc.legends)
 
 
 
-problematic_icc <- cowplot::plot_grid(
-  item26.icc,item38.icc,item22.icc,item39.icc,item03.icc,item17.icc,
+problematic_icc <- cowplot::plot_grid(item26.icc,item03.icc,item17.icc,
+  item22.icc,item38.icc,item39.icc,
                                labels = "AUTO",
                                align="v",
                                ncol = 3,
-                               label_size = 15,
+                               label_size = 12,
                                label_fontfamily = "sans",
                                label_fontface = "plain")
 
 problematic_icc_2 <- plot_grid(problematic_icc, icc.legend, ncol = 1, rel_heights =  c(1, .12))
 
-ggsave("Figures/Fig4.png",problematic_icc_2 , units = "mm", width = 174, height = 117, dpi = 600, bg = "white")
+ggsave("Figures/Fig4.tiff",problematic_icc_2 , units = "mm", width = 174, height = 117, dpi = 600, bg = "white")
 
 
 
@@ -1606,12 +1606,7 @@ moderate <- sum(IRT.details.1$a >=.64 & IRT.details.1$a<1.34, na.rm=TRUE)
 high <- sum(IRT.details.1$a >=1.34 & IRT.details.1$a<1.69, na.rm=TRUE)
 very.high <- sum(IRT.details.1$a >=1.69, na.rm=TRUE)
 
-##Difficulty
-very_easy_items <- IRT.details.1[which(IRT.details.1$b< -2),]
-easy_items <- IRT.details.1[which(-2<IRT.details.1$b &  IRT.details.1$b<= -0.50),]
-medium_items <-IRT.details.1[which(-0.51<IRT.details.1$b &  IRT.details.1$b<= 0.50),]
-hard_items <-IRT.details.1[which(.51<IRT.details.1$b &  IRT.details.1$b<= 2),]
-very_hard_items <-IRT.details.1[which(IRT.details.1$b> 2),]
+range(IRT.details.1$a)
 
 ```
 
@@ -1923,25 +1918,154 @@ Nonreact.DIF <- lordif(as.data.frame(nonreact.refit.2), data$Gender, criterion =
 
 ```
 
+
+```{r esem, include=F}
+# devtools::install_github("MateusPsi/esemComp")
+library(esemComp)
+esem_data <- data %>% 
+  dplyr::select(item1,item6 , item11 , item15 , item20 , item26 , item31 , item36,
+                item7 , item27, item32 , item37,
+                Ritem5, Ritem8 , Ritem13 , Ritem18 , Ritem23 , Ritem28 , Ritem34,
+                Ritem10 ,  Ritem25 , Ritem30 ,Ritem35,item9 , item19 , item21 , item24 , item29 , item33)
+
+  
+#Rename variables
+names(esem_data) <- paste0("x", c(1:29))
+
+#creating a target matrix
+target_rot <- esemComp::make_target(29,#Item number
+                                    mainloadings=list(
+                                      f1=1:8,
+                                      f2=9:12,
+                                      f3=13:19,
+                                      f4=20:23,
+                                      f5=24:29
+                                    ))
+
+
+esem_tareget_efa <- esem_efa(esem_data,nfactors=5, target= target_rot, fm="ml")
+
+#Find the referent item for each factor
+referents <- find_referents(esem_tareget_efa, factor_names = c("f1", "f2", "f3",
+                                                               "f4", "f5"))
+
+#make esem model
+esem_model <- syntax_composer(esem_tareget_efa, referents)
+
+#print model
+# writeLines(esem_model)
+
+
+#Fit the model
+esem_fit <- lavaan::cfa(esem_model, esem_data,ordered = names(esem_data), estimator = "WLSMV", mimic = "Mplus", std.lv=T)
+
+summary(esem_fit, fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
+
+
+fitmeasures (esem_fit ,c("gfi", "agfi", "nfi","rfi", "cfi.scaled","tli.scaled","rmsea.scaled", "srmr","aic"))
+
+rel.esm <- reliability(esem_fit, return.total = TRUE)
+
+rel.esm.m <- rel.esm[4,]
+
+
+
+
+
+```
+
+```{r esem-ho, include=F}
+factor_score <- psych::factor.scores(esem_data, esem_tareget_efa, method ="Thurstone")
+
+fscores <- as.data.frame(factor_score$scores)
+
+
+
+#Rename variables
+names(fscores ) <- paste0("x", c(1:5))
+
+#creating a target matrix
+# target_rot <- esemComp::make_target(5,#Item number
+#                                     mainloadings=list(
+#                                       f1=1:5))
+
+
+esem_tareget_efa_higher_order <- esem_efa(fscores,nfactors=2, fm="ml")
+
+#Find the referent item for each factor
+referents_higher_order <- find_referents(esem_tareget_efa_higher_order , factor_names = c("f1","f2"))
+
+#make esem model
+esem_model_higher_order <- syntax_composer(esem_tareget_efa_higher_order , referents_higher_order )
+
+#print model
+# writeLines(esem_model)
+
+
+#Fit the model
+esem_fit_higher_order <- lavaan::cfa(esem_model_higher_order, fscores, ordered = names(fscores),estimator = "WLSMV", mimic = "Mplus", std.lv=T)
+
+summary(esem_fit_higher_order , fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
+
+
+fitmeasures (esem_fit_higher_order  ,c("gfi", "agfi", "nfi","rfi", "cfi.scaled","tli.scaled","rmsea.scaled", "srmr","aic"))
+
+rel.esm_ho <- reliability(esem_fit_higher_order , return.total = TRUE)
+
+rel.esm_ho.m <- rel.esm_ho[4,]
+
+```
+
+
+```{r esemplot}
+semPaths (esem_fit_higher_order, 
+          what= "std",
+          #whatLabels = "std",
+          intercepts = F,
+          #style ="lisrel",
+          #residScale = 6,
+          theme = "colorblind",
+          nCharNodes = 0,
+          reorder =T,
+          rotation =2,
+          layout ="tree",
+          cardinal = T,
+          curvePivot =T,
+          sizeMan =10,
+          sizeMan2 = 1.5,
+          sizeLat = 10,
+          #edge.color = "black",
+          thresholds = FALSE,
+          equalizeManifests =T,
+          fade = FALSE,
+          edge.label.cex = .65,
+          exoCov = T)
+```
+
+
+
+
+
+
+## Confirmatory Factor Analysis
 ```{r CFA-irt, include =F}
 
-FF.irt.1 <- "Observe =~ item1+item6 + item11 + item15 + item20 + item26 + item31 + item36
-          Describe =~  item7 + item27+ item32 + item37
-          Awareness =~ Ritem5+ Ritem8 + Ritem13 + Ritem18 + Ritem23 + Ritem28 + Ritem34
-          Nonjudge =~ Ritem10 +  Ritem25 + Ritem30 +Ritem35
-          Nonreact =~ item4+ item9 + item19 + item21 + item24 + item29 + item33"
-
-
+FF.irt.1 <- "Obs =~ item1+item6 + item11 + item15 + item20 + item26 + item31 + item36
+          Des =~  item7 + item27+ item32 + item37
+          Actw =~ Ritem5+ Ritem8 + Ritem13 + Ritem18 + Ritem23 + Ritem28 + Ritem34
+          Nonj =~ Ritem10 +   Ritem25 + Ritem30 +Ritem35
+          Nonr =~ item9 + item19 + item21 + item24 + item29 + item33"
 
 fit.irt.1 <- cfa(FF.irt.1, data = IRT, ordered = names(IRT),estimator = "WLSMV", mimic = "Mplus", test="standard")
-
 
 lavaan::summary(fit.irt.1 , fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
 
 
 fitmeasures (fit.irt.1,c("gfi", "agfi", "nfi","rfi", "cfi","tli","rmsea", "srmr","aic"))
 
-reliability(fit.irt.1, return.total = TRUE)
+rel.cor <- reliability(fit.irt.1, return.total = TRUE)
+
+rel.com.m <- rel.cor[4,]
 
 ```
 
@@ -1949,10 +2073,10 @@ reliability(fit.irt.1, return.total = TRUE)
 
 FF.irt.H <- "Observe =~ item1+item6 + item11 + item15 + item20 + item26 + item31 + item36
           Describe =~  item7 + item27+ item32 + item37
-          Awareness =~ Ritem5+ Ritem8 + Ritem13 + Ritem18 + Ritem23 + Ritem28 + Ritem34
-          Nonjudge =~ Ritem10 +  Ritem25 + Ritem30 +Ritem35
-          Nonreact =~ item4+ item9 + item19 + item21 + item24 + item29 + item33
-mindfulness =~  Observe+Describe + Awareness+Nonjudge+Nonjudge+Nonreact
+          Actwar =~ Ritem5+ Ritem8 + Ritem13 + Ritem18 + Ritem23 + Ritem28 + Ritem34
+          Nonjudge =~ Ritem10 +   Ritem25 + Ritem30 +Ritem35
+          Nonreact =~ item9 + item19 + item21 + item24 + item29 + item33
+mindfulness =~  Observe+Describe + Actwar+Nonjudge+Nonreact
                                  "
 
 
@@ -1966,7 +2090,7 @@ lavaan::summary(fit.irt.H , fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
 
 fitmeasures (fit.irt.H,c("gfi", "agfi", "nfi","rfi", "cfi","tli","rmsea", "srmr","aic"))
 
-reliability(fit.irt.H, return.total = TRUE)
+rel.h <- reliability(fit.irt.H, return.total = TRUE)
 
 ```
 
@@ -1975,14 +2099,57 @@ modfit.or <- modindices(fit.irt.H, sort. = TRUE)
 modfit.or[modfit.or$mi>3.84,]
 ```
 
+```{r CFA-5H2,include =F}
+FF.irt.H.1 <- "Obs =~ item1+item6 + item11 + item15 + item20 + item26 + item31 + item36
+          Des =~  item7 + item27+ item32 + item37
+          Actw =~ Ritem5+ Ritem8 + Ritem13 + Ritem18 + Ritem23 + Ritem28 + Ritem34
+          Nonj =~ Ritem10 +   Ritem25 + Ritem30 +Ritem35
+          Nonr =~ item9 + item19 + item21 + item24 + item29 + item33
+Mindfulness =~  Obs+Des + Actw+Nonj+Nonr
+                                 Actw ~~  Nonj"
+
+
+fit.irt.H.1 <- cfa(FF.irt.H.1, data = IRT, ordered = names(IRT),estimator = "WLSMV", mimic = "Mplus", test="standard")
+
+
+
+
+lavaan::summary(fit.irt.H.1 , fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
+
+
+fitmeasures (fit.irt.H.1,c("gfi", "agfi", "nfi","rfi", "cfi","tli","rmsea", "srmr","aic"))
+
+rel.h1 <- reliability(fit.irt.H.1, return.total = TRUE)
+
+```
+
+```{r cfa-all, include=F}
+cfa.all <- tabledown::cfa.tab.multi(fit.irt.1,fit.irt.H, fit.irt.H.1)
+cfa.all <- cfa.all[,-c(4,5)]
+rownames(cfa.all) <- c("Five Facet Correlated Model", "Higher Order Model", "Modified Higher Order Model")
+
+
+reliability.scale <- as.data.frame(round(c(rel.cor[5,1], rel.h[5,1],rel.h1[5,1]),2))
+
+colnames(reliability.scale) <- "Mcdonald's Omega for Total scale"
+
+cfa.all.1 <- cbind(cfa.all,reliability.scale)
+```
+
+We fitted two models: correlated five facet model and a higher-order model with retained `r nrow(IRT.details.1)`items on our sample (n = `r nrow(data)`). Table \@ref(tab:CFA-tab) summarizes the model fit. The correlated five facet model attined good fit. However, the higher order model achieved accptable fit only after allowing the error variance of "actwar" and "nonjudge" facets to covary. The internal consistency coefficient McDoland's $\omega_t$ for the total scale for the both models was .80 which was satisfactory [@RN1173]. As such we accept both correlated five facet and modified higher-order model. In the both models the  reliability coefficents Mcdonald's $\omega_t$ were, observe= `r apa(rel.cor[5,1],2,F)`, describe = `r apa(rel.cor[5,2],2,F)`, actwar= `r apa(rel.cor[5,3],2,F)`, nonjudge = `r apa(rel.cor[5,4],2,F)`, `r apa(rel.cor[5,5],2,F)`.  
+
+```{r CFA-tab, results='asis'}
+apa_table(cfa.all.1, caption = "Model Fit of Bangla Five Factor Mindfulness Questionnaire")
+```
+
 ```{r Shortcut-Invariance, eval=FALSE, include=FALSE}
 library("semTools")
 
-FF.irt.1 <- "Observe =~ item6 + item11 + item15 + item20 + item26 + item31 + item36
+FF.irt.1 <- "Observe =~ item1+item6 + item11 + item15 + item20 + item26 + item31 + item36
           Describe =~  item7 + item27+ item32 + item37
-          Awareness =~ Ritem5+ Ritem8 + Ritem13 + Ritem18 + Ritem23 + Ritem28 + Ritem34
-          Nonjudge =~ Ritem10 +  Ritem25 + Ritem30 +Ritem35
-          Nonreact =~  item9 + item19 + item21 + item24 + item29 + item33
+          Actwar =~ Ritem5+ Ritem8 + Ritem13 + Ritem18 + Ritem23 + Ritem28 + Ritem34
+          Nonjudge =~ Ritem10 +   Ritem25 + Ritem30 +Ritem35
+          Nonreact =~ item9 + item19 + item21 + item24 + item29 + item33
           
 "
 invariance.model <- measurementInvariance(model = FF.irt.1,
@@ -2004,6 +2171,12 @@ invariance.model[[5]] # means, structural invariance
 
 ```{r Invariancedetail, eval=FALSE, include=FALSE}
 # Configural invariance ####
+
+FF.irt.1 <- "Observe =~ item1+item6 + item11 + item15 + item20 + item26 + item31 + item36
+          Describe =~  item7 + item27+ item32 + item37
+          Awareness =~ Ritem5+ Ritem8 + Ritem13 + Ritem18 + Ritem23 + Ritem28 + Ritem34
+          Nonjudge =~ Ritem10 +   Ritem25 + Ritem30 +Ritem35
+          Nonreact =~ item9 + item19 + item21 + item24 + item29 + item33"
 
 
 configural <- cfa(model = FF.irt.1,
@@ -2098,18 +2271,18 @@ colnames(Invariance.table) <- c("Chi-Square", "df", "CFI", "TLI", "RMSEA", "RMSE
 ```
 
 ```{r InvarianceTab, eval=FALSE, include=FALSE, results='asis'}
-apa_table(Invariance.table, align = "c",  caption = "Invariance Analysis", note = " a = Metric vs Configural; b = Scalar vs Metric; c = Residual vs Scalar; d = Structural vs Residual;* =  df of model comparison", landscape = T, font_size = "footnotesize" )
+apa_table(Invariance.table, align = "c",  caption = "Invariance Analysis", note = " a = Metric vs Configural; b = Scalar vs Metric; c = Residual vs Scalar; * =  df of model comparison", landscape = T, font_size = "footnotesize" )
 
 ```
 
-```{r figcfa, fig.cap = "(A) ", fig.show="hold",fig.ncol = 2, out.width="50%",  warning=FALSE}
-library(semPlot)
-
-semPaths (fit.irt.1 , 
+```{r CFAplot, include =FALSE}
+png("Figures/CFAplot1.png", width = 84, height = 117, units = "mm", bg = "white", res = 300)
+# 2. Create the plot
+semPaths (fit.irt.1  , 
           what= "std",
           #whatLabels = "std",
           intercepts = F,
-          style ="lisrel",
+          #style ="lisrel",
           #residScale = 6,
           theme = "colorblind",
           nCharNodes = 0,
@@ -2118,20 +2291,48 @@ semPaths (fit.irt.1 ,
           layout ="tree",
           cardinal = T,
           curvePivot =T,
-          sizeMan =8,
+          sizeMan =10,
           sizeMan2 = 1.5,
-          sizeLat = 8,
-          edge.color = "black",
+          sizeLat = 10,
+          #edge.color = "black",
           thresholds = FALSE,
           equalizeManifests =T,
           fade = FALSE,
           edge.label.cex = .65,
-          exoCov = F)
+          exoCov = FALSE)
+# 3. Close the file
+dev.off()
 
 
-
-
+png("Figures/CFAplot2.png", width = 84, height = 117, units = "mm", bg = "white", res = 300)
+# 2. Create the plot
+semPaths (fit.irt.H.1, 
+          what= "std",
+          #whatLabels = "std",
+          intercepts = F,
+          #style ="lisrel",
+          #residScale = 6,
+          theme = "colorblind",
+          nCharNodes = 0,
+          reorder =T,
+          rotation =2,
+          layout ="tree",
+          cardinal = T,
+          curvePivot =T,
+          sizeMan =10,
+          sizeMan2 = 1.5,
+          sizeLat = 10,
+          #edge.color = "black",
+          thresholds = FALSE,
+          equalizeManifests =T,
+          fade = FALSE,
+          edge.label.cex = .65,
+          exoCov = FALSE)
+# 3. Close the file
+dev.off()
 ```
+
+
 
 #Validity analysis
 
@@ -2149,9 +2350,14 @@ EI_total <- EI %>%
 
 validity$EI_Total <-  EI_total$EI_Total 
 
+
+
+
+
+  
 validity <- validity %>% 
   rowwise() %>% 
-  mutate(observe_total = sum(item6 , item11 , item15 , item20 , item26 , item31 , item36))
+  mutate(observe_total = sum(item1, item6 , item11 , item15 , item20 , item26 , item31 , item36))
 
 validity <- validity %>% 
   rowwise() %>% 
@@ -2257,7 +2463,6 @@ glrstab<- function(x, export=FALSE) {
 
 ```
 
-
 ```{r correlations, include =F}
 Cor <-glrstab(validity.cor) #the function in action!
 
@@ -2271,7 +2476,25 @@ papaja::apa_table(Cor, escape  = FALSE
                 , note    = "**p < .001")
 ```
 
-We gathered convergent and divergent validity evidence of BFFMQ on a subset of our sample (n= `r nrow(validity)`).  We gathered convergent validity evidence based on correlational analysis. Table\@ref(tab:tabvalidity) summarized the inter correlation of the five mindfulness facets as well as correlation coefficients of these facets  with emotional intelligence [@hydePsychologicalTestManual2002], depression [@uddinDevelopmentScaleDepression2005], MAAS [@brownBenefitsBeingPresent2003; @islamValidationBanglaMindful2016], and three  measures of personality: openness, extroversion and neuroticism [@RN1278; @RN1287; @RN1288]. Table\@ref(tab:tabvalidity) indicated inter-correlations of the five facets were in general modest and significant (only three pairs: observe with actware, describe with nonjudge, and nonreact with actware were non-significant). Nonjudge was significantly negatively correlated with observe ( r = `r round(cor.tab[4,1],2)`, p < .01). Nonreact was significantly negatively correlated with   awareness ( r = `r round(cor.tab[5,4],2)`, p < .01). By judging the underlying construct and item contents of BFFMQ we expected  positive correleation among facets of BFFQ and emotional intelligence, MASS and openness since these constructs incorporate the elements of mindfulness [@baerUsingSelfReportAssessment2006]. And with neuroticism and depression negative correlations were expected as neuroticism to some extent reflect the absence of mindfulness [@baerUsingSelfReportAssessment2006]. Table\@ref(tab:tabvalidity) indicated that our directional findings of the correlations were almost consistent with our prediction. Emotional intelligence was significantly positively correlated with four facets (negatively correlated with nonjudgement, r =`r round(cor.tab[6,4],2)` p>.05 ). MASS was positively correlated with all five facets of mindfulness. Depression and neuroticism were negatively correlated with all the five facets.
+We gathered validity evidence of BFFMQ on a subset of our sample (n = `r nrow(validity)`). Table\@ref(tab:tabvalidity) summarized the inter-correlation of the five facets as well as correlation coefficients of these facets  with EI [@hydePsychologicalTestManual2002], depression [@uddinDevelopmentScaleDepression2005], MAAS [@brownBenefitsBeingPresent2003; @islamValidationBanglaMindful2016], and two  measures of personality: openness and neuroticism [@RN1278; @RN1287; @RN1288]. Inter-correlations of the five facets were modest and significant (three pairs: observe-actware, describe-nonjudge, and nonreact-actware were non-significant). Nonjudge was significantly negatively correlated with observe ( r = `r round(cor.tab[4,1],2)`, p < .01). Nonreact was significantly negatively correlated with   awareness ( r = `r round(cor.tab[5,4],2)`, p < .01). EI was significantly positively correlated with four facets  and negatively correlated with nonjudgement . MASS was positively correlated with all five facets of mindfulness. Depression and neuroticism were negatively correlated with all the five facets.
+
+
+# Discussion
+
+We followed the ITC [@bartramITCGuidelinesTranslating2018] guidelines to culturally adapt FFMQ and psychometrically validate it among Bangladeshi community sample. The content validity of the initial synthesized scale was assessed by I-CVI and S-CVI (average) [@article; @RN1290] from the evaluation of 12mental health experts. The final I-CVI scores for each item were higher than 0.83 and S-CVI was .96, indicating satisfactory content validity [@article; @RN1290]
+
+We administer the BFFMQ to a large sample (n = `r nrow(data)`) and analysed the item quality using IRT. At first the unidimensionality of each facets were confirmed using categorical confirmatory factor analysis and then  5 graded response models were fitted. In IRT based item analysis we gather evidence on item discrimination, item-fit, person-fit, and item and scale information.  In IRT based analysis we discarded 4 items (2,12,14, 16) for item-misfit and 5 items for being outside the suggested item discrimination  guidelines, inappropriate monotonocity  and/or relatively flat information curve (22, 38, 39, 3,17). TICs and conditional reliability plots of the The revised models raveled that all facets had a good range of coverage across the underlying mindfulness traits with least amount or errors ranging between -2 to 2 $\theta$ range. The marginal reliability estimates for the five facets ranged between `r apa(min(marginal),2,F)`-`r apa(max(marginal),2,F)`
+The person-item map  also indicated the items' difficulty thresholds were dispersed and covered a good range of respondent's underlying mindfulness trait across five facets.
+
+Next, we gathered evidence of structural validity by fitting two models : correlated five facet model and higher-order model using a categorical CFA on the same sample (n = `r nrow(data)`). The correlated five facet model attained good fit without any modification (CFI= `r cfa.all.1[1,4]`; TLI= `r cfa.all.1[1,5]`; RMSEA= `r cfa.all.1[1,6]`; SRMR: `r cfa.all.1[1,7]`). However, the higher-order model attained acceptable fit only after allowing the error variance of "actwar" and "nonjudge" facets to covary (CFI= `r cfa.all.1[3,4]`; TLI= `r cfa.all.1[3,5]`; RMSEA= `r cfa.all.1[3,6]`; SRMR: `r cfa.all.1[3,7]`). The internal consistancy coefficent for the total scale for the both fitted model was Mcdonald's $\omega_t$ = .80 which was satisfactory. Mcdonald's $\omega_t$ for the five facets ranged between `r apa(range(rel.com.m),2,F)`. Facets nonjudge and nonreact were low in reliability score.
+
+Lastly, By judging the underlying construct and item contents of BFFMQ we expected  positive correleation among facets of BFFQ and emotional intelligence, MASS and openness since these constructs incorporate the elements of mindfulness [@baerUsingSelfReportAssessment2006]. And with neuroticism and depression negative correlations were expected as neuroticism to some extent reflect the absence of mindfulness [@baerUsingSelfReportAssessment2006]. Table\@ref(tab:tabvalidity) indicated that our directional findings of the correlations were almost consistent with our prediction. Emotional intelligence was significantly positively correlated with four facets (negatively correlated with nonjudgement, r =`r round(cor.tab[6,4],2)` p>.05 ). MASS was positively correlated with all five facets of mindfulness. Depression and neuroticism were negatively correlated with all the five facets.
+
+## Conclusion
+IRT analysis on the 39-item Bangla-Five Factor Mindfulness Questionnaire discarded 9 items and indicated BFFMQ had items with diverse item discrimination and good coverage across the underlying mindfulness traits. A categorical CFA on the retained `r nrow(IRT.details.1)` items supported both correlated five facet and higher order latent structure.  BFFMQ was found reliable and valid. All-in-all, we can recommend Bangla Rotter’s I-E to be used to measure individual’s mindfulness.
+## Future directions
+We recommend some works for future researchers. First, geographically the scope of the data was narrow; data from other parts of the country should be considered to widen the scope. Second, the differential item functioning and measurement invariance can be analyzed for males and females and age groups to identify potential item bias.
+
 
 
 

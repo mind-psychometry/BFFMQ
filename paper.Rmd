@@ -1930,7 +1930,7 @@ esem_data <- data %>%
 
   
 #Rename variables
-names(esem_data) <- paste0("x", c(1:29))
+# names(esem_data) <- paste0("x", c(1:29))
 
 #creating a target matrix
 target_rot <- esemComp::make_target(29,#Item number
@@ -1965,9 +1965,10 @@ summary(esem_fit, fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
 fitmeasures (esem_fit ,c("gfi", "agfi", "nfi","rfi", "cfi.scaled","tli.scaled","rmsea.scaled", "srmr","aic"))
 
 rel.esm <- reliability(esem_fit, return.total = TRUE)
+# 
+# rel.esm.m <- rel.esm[4,]
 
-rel.esm.m <- rel.esm[4,]
-
+esemComp::omega_esem(esem_fit,target_rot )
 
 
 
@@ -2010,9 +2011,10 @@ summary(esem_fit_higher_order , fit.measures =TRUE,standardized = TRUE, rsq =TRU
 
 fitmeasures (esem_fit_higher_order  ,c("gfi", "agfi", "nfi","rfi", "cfi.scaled","tli.scaled","rmsea.scaled", "srmr","aic"))
 
-rel.esm_ho <- reliability(esem_fit_higher_order , return.total = TRUE)
+# rel.esm_ho <- reliability(esem_fit_higher_order , return.total = TRUE)
+# 
+# rel.esm_ho.m <- rel.esm_ho[4,]
 
-rel.esm_ho.m <- rel.esm_ho[4,]
 
 ```
 

@@ -378,7 +378,8 @@
         "beepr",
         "dplyr",
         "foreach",
-        "pbapply"
+        "pbapply",
+        "sessioninfo"
       ]
     },
     "SparseM": {
@@ -443,16 +444,6 @@
         "robustbase",
         "sp",
         "vcd"
-      ]
-    },
-    "WrightMap": {
-      "Package": "WrightMap",
-      "Version": "1.3",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "0ac68df0abe171dae9255f9cee656bea",
-      "Requirements": [
-        "RColorBrewer"
       ]
     },
     "XML": {
@@ -1069,6 +1060,26 @@
         "Rcpp",
         "boot",
         "gsl"
+      ]
+    },
+    "esemComp": {
+      "Package": "esemComp",
+      "Version": "0.2",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "esemComp",
+      "RemoteUsername": "MateusPsi",
+      "RemoteRef": "HEAD",
+      "RemoteSha": "5b5b9f067aad2d40310a01adb59722bda9e8fe51",
+      "Hash": "8172cbccd1ce732466988859583c6474",
+      "Requirements": [
+        "GPArotation",
+        "data.table",
+        "glue",
+        "lavaan",
+        "psych",
+        "rlang"
       ]
     },
     "evaluate": {
@@ -2376,6 +2387,36 @@
         "withr"
       ]
     },
+    "plotly": {
+      "Package": "plotly",
+      "Version": "4.10.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "3781cf6971c6467fa842a63725bbee9e",
+      "Requirements": [
+        "RColorBrewer",
+        "base64enc",
+        "crosstalk",
+        "data.table",
+        "digest",
+        "dplyr",
+        "ggplot2",
+        "htmltools",
+        "htmlwidgets",
+        "httr",
+        "jsonlite",
+        "lazyeval",
+        "magrittr",
+        "promises",
+        "purrr",
+        "rlang",
+        "scales",
+        "tibble",
+        "tidyr",
+        "vctrs",
+        "viridisLite"
+      ]
+    },
     "plyr": {
       "Package": "plyr",
       "Version": "1.8.7",
@@ -3021,6 +3062,16 @@
         "jsonlite",
         "mime",
         "xfun"
+      ]
+    },
+    "sessioninfo": {
+      "Package": "sessioninfo",
+      "Version": "1.2.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "3f9796a8d0a0e8c6eb49a4b029359d1f",
+      "Requirements": [
+        "cli"
       ]
     },
     "shiny": {

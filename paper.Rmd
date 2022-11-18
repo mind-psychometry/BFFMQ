@@ -103,8 +103,6 @@ par(family = "Arial")
 
 ```
 
-
-
 ```{r pacman,  include=FALSE}
 #You need to run this chunk 1X in your system 
 #install.packages("pacman")#Run this if you don't have pacman installed.
@@ -131,6 +129,8 @@ nocite: |
 ---
 
 ```{r samplesize, include=F}
+#Simulation to estimate required sample size for CFA
+
 lavmodel <-  "Observe =~ item1 + item6 + item11 + item15 + item20 + item26 + item31 + item36
 Describe =~ item2 + item7 + Ritem12 + Ritem16 + Ritem22 + item27 + item32 + item37
 Awareness =~ Ritem5 + Ritem8 + Ritem13 + Ritem18 + Ritem23 + Ritem28 + Ritem34 + Ritem38
@@ -148,6 +148,10 @@ summary(ap)
 ```
 
 ```{r samplesizeIRT, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE, results='hide', width=60}
+
+#Simulation to estimate required sample size for CFA
+
+
 library(SimDesign)
 set.seed(222)
 m <-  8 # item number
@@ -205,6 +209,7 @@ axis(1, at = nvec)
 ```
 
 ```{r apatheme, include=F}
+#Create apatheme for the plots
 apatheme=theme_bw()+
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
@@ -248,14 +253,15 @@ All code and data underlying this article is available on a public GitHub reposi
 
 ## Participants
 ```{r data, include =F}
+#This chunk uploads the data to the system and devides the data for  descriptives, IRT, and validity analysis
 library(readxl)
 data <- readRDS("ProcessedData/Bangla_FFMQ.rds")
 
-IRT <- data %>% 
-  dplyr::select(item1:Ritem39)
-
 Descriptives <- data %>% 
   dplyr::select(Age: Social_status)
+
+IRT <- data %>% 
+  dplyr::select(item1:Ritem39)
 
 validity <- subset(data, Sample == "Correlational Analysis")
 val.des <-validity %>% 
@@ -265,7 +271,7 @@ val.des <-validity %>%
 
 ```{r prepareDescTable, include=FALSE}
 
-# create descriptive table for the demographic vars (excluding tz & Country) with gtsummary
+# create descriptive table for the demographic vars  with gtsummary
 desc_table <- Descriptives%>%
   tbl_summary(
     by = Gender,
@@ -331,7 +337,7 @@ Responses from a subset of our sample, n = `r nrow(validity)` were used to inves
 ## Material
 
 ```{r reliability-validity, include =F}
-
+#This chunks calculates reliability of the constructs used for validation of BFFMQ
 
 validity$EI17 <- as.numeric(validity$EI17)
 
@@ -425,40 +431,75 @@ We used  `r R.version$version.string`[@R-base] for our analysis. We started our 
 ## Descriptive Statistics
 
 ```{r descriptives, include =F}
-ob.m <- IRT  %>% 
-  dplyr::select(item1 , item6 , item11 , item15 , item20 , item26 , item31 , item36)
-  
-  
-des.m <- IRT  %>% 
-  dplyr::select(item2 , item7 , Ritem12 , Ritem16 , Ritem22 , item27 , item32 , item37)
-  
-actw.m <- IRT  %>% 
-  dplyr::select(Ritem5, Ritem8, Ritem13, Ritem18, Ritem23, Ritem28, Ritem34, Ritem38) 
-  
-nj.m <- IRT  %>% 
-  dplyr::select(Ritem3 , Ritem10 , Ritem14 , Ritem17 , Ritem25 , Ritem30, Ritem35,  Ritem39) 
-  
-nr.m <- IRT %>% 
-  dplyr::select(item4 , item9 , item19 , item21 , item24 , item29 , item33) 
+#This chunks holds the codes for descriptives analysis
+descriptives <- IRT #load data
+
+#Remane for sorting purpose!
+names(descriptives)[names(descriptives) == "item1"] <- "item01"
+names(descriptives)[names(descriptives) == "item2"] <- "item02"
+names(descriptives)[names(descriptives) == "Ritem3"] <- "item03"
+names(descriptives)[names(descriptives) == "item4"] <- "item04"
+names(descriptives)[names(descriptives) == "Ritem5"] <- "item05"
+names(descriptives)[names(descriptives) == "item6"] <- "item06"
+names(descriptives)[names(descriptives) == "item7"] <- "item07"
+names(descriptives)[names(descriptives) == "Ritem8"] <- "item08"
+names(descriptives)[names(descriptives) == "item9"] <- "item09"
+names(descriptives)[names(descriptives) == "Ritem10"] <- "item10"
+names(descriptives)[names(descriptives) == "Ritem12"] <- "item12"
+names(descriptives)[names(descriptives) == "Ritem13"] <- "item13"
+names(descriptives)[names(descriptives) == "Ritem14"] <- "item14"
+names(descriptives)[names(descriptives) == "Ritem16"] <- "item16"
+names(descriptives)[names(descriptives) == "Ritem17"] <- "item17"
+names(descriptives)[names(descriptives) == "Ritem18"] <- "item18"
+names(descriptives)[names(descriptives) == "Ritem22"] <- "item22"
+names(descriptives)[names(descriptives) == "Ritem23"] <- "item23"
+names(descriptives)[names(descriptives) == "Ritem25"] <- "item25"
+names(descriptives)[names(descriptives) == "Ritem28"] <- "item28"
+names(descriptives)[names(descriptives) == "Ritem30"] <- "item30"
+names(descriptives)[names(descriptives) == "Ritem34"] <- "item34"
+names(descriptives)[names(descriptives) == "Ritem35"] <- "item35"
+names(descriptives)[names(descriptives) == "Ritem38"] <- "item38"
+names(descriptives)[names(descriptives) == "Ritem39"] <- "item39"
 
 
+#Setting data frame for the five factes
+ob.m <- descriptives  %>% 
+  dplyr::select(item01 , item06 , item11 , item15 , item20 , item26 , item31 , item36)
+  
+  
+des.m <- descriptives  %>% 
+  dplyr::select(item02 , item07 , item12 , item16 , item22 , item27 , item32 , item37)
+  
+actw.m <- descriptives  %>% 
+  dplyr::select(item05, item08, item13, item18, item23, item28, item34, item38) 
+  
+nj.m <- descriptives  %>% 
+  dplyr::select(item03 , item10 , item14 , item17 , item25 , item30, item35,  item39) 
+  
+nr.m <- descriptives %>% 
+  dplyr::select(item04 , item09 , item19 , item21 , item24 , item29 , item33) 
+
+
+
+#Descriptives using tab des
 des.ob <- tabledown::des.tab(ob.m)
-
 des.des <- tabledown::des.tab(des.m )
 des.actw <- tabledown::des.tab(actw.m)
 des.nj <- tabledown::des.tab(nj.m )
 des.nr <- tabledown::des.tab(nr.m )
 
+#Join all facets
+descriptives_tab <- rbind(des.ob,des.des,des.actw,des.nj,des.nr)
 
-descriptives <- rbind(des.ob,des.des,des.actw,des.nj,des.nr)
 
+#Mardia test of multivariate normality
 mvn.observe <- MVN::mvn(ob.m, mvnTest = "mardia" )
 mvn.describe <- MVN::mvn(des.m, mvnTest = "mardia" )
 mvn.actware <- MVN::mvn(actw.m, mvnTest = "mardia" )
 mvn.nj <- MVN::mvn(nj.m, mvnTest = "mardia" )
 mvn.nr <- MVN::mvn(nr.m, mvnTest = "mardia" )
 
-
+#Item-total correlations
 ob.icor <-as.data.frame(as.numeric(des.ob$Corrected.item.total.correlation))
 des.icor <-as.data.frame(as.numeric(des.des$Corrected.item.total.correlation))
 actw.icor <-as.data.frame(as.numeric(des.actw$Corrected.item.total.correlation))
@@ -468,9 +509,131 @@ nr.icor <-as.data.frame(as.numeric(des.nr$Corrected.item.total.correlation))
 
 ```
 
+```{r fig2data, include=FALSE}
+#This chunk summarizes the data for Fig2
+gt.data <- descriptives  %>% 
+  dplyr::select(item01 , item06 , item11 , item15 , item20 , item26 , item31 , item36,item02 , item07 , item12 , item16 , item22 , item27 , item32 , item37,item05, item08, item13, item18, item23, item28, item34, item38, item03 , item10 , item14 , item17 , item25 , item30, item35,  item39,item04 , item09 , item19 , item21 , item24 , item29 , item33)
+
+
+#Recode key
+recod_code <- c( "1" = "Never or very rarely true", "2" = "Rarely true", "3"= "Sometimes true","4" = "Often true",
+                 "5" = "Very often or always true")
+
+
+#Data for gtExtras
+full.tab <- tabledown::gt_tab(gt.data,recod_code )
+
+#Arrange the data
+full.tab_1 <- full.tab[, c(1,8,11,12,13,7,14,16,17,15,18)]
+full.tab_des <- inner_join(full.tab_1, descriptives_tab, by = "Items") #descriptives_tab is used to get the facet wise values.
+full.tab_2 <- full.tab_des[, c(1,12,13,4,17,6:11)]
+#Set colnames
+colnames(full.tab_2 ) <- c("Items", "Mean", "SD","S-W Statistics","Item-Total Correlation", "dens_data","Never or very rarely true","Rarely true","Sometimes true","Often true",  "Very often or always true" )
+
+```
+
+```{r Fig2,  include=FALSE}
+#This chunk holds codes for creating 'gtExtra' based descriptive figures (EFA+CFA); 
+
+full.tab_3 <- full.tab_2 %>% gt() #Converts to gt object
+
+full.tab_3 %>% 
+# histogram and density plots
+  # gtExtras::gt_plt_dist(
+  #   hist_data,
+  #   type = "histogram",
+  #   line_color = "black", 
+  #   fill_color = "#00A08799",
+  #   bw = 1,
+  #   same_limit = TRUE)%>%
+  gtExtras::gt_plt_dist(
+    dens_data,
+    type = "density",
+    line_color = "black", 
+    fill_color = "#00A08799",
+    bw = 0.75,
+    same_limit = TRUE
+  )%>%
+# format decimals
+  # fmt_number(columns = Mean:SD, decimals = 1) %>%
+# header
+  tab_header(
+    title = md("Summary Descriptives (n=532)"),
+    ) %>% #create groups of columns
+ 
+  tab_spanner(
+    label = "Summary Statistics",
+    columns = Mean:`Item-Total Correlation`
+  ) %>%
+  tab_spanner(
+    label = "Graphics",
+    columns = dens_data
+  ) %>% 
+  tab_spanner(
+    label = "Response Pattern",
+    columns = `Never or very rarely true`:`Very often or always true`
+  ) %>%
+     tab_footnote(
+     footnote = md("**Shapiro–Wilk test; *p<0.001**"),
+     locations = cells_column_labels(columns = `S-W Statistics`)
+  ) %>% 
+  tab_footnote(
+     footnote = md("**%(n)**"),
+     locations = cells_column_labels(columns = `Never or very rarely true`:`Very often or always true`)
+  ) %>% 
+# change column names to appear in the table
+cols_label(
+  Items = ("Items"),
+  Mean = ("Mean"),
+  SD = ("SD"),
+  `Item-Total Correlation` = ("Item-Total Correlation"),
+  `S-W Statistics` = ("SW"),
+  # hist_data = "Histogram",
+  dens_data = "Density"
+)  %>% 
+# set alignment as per wish
+  cols_align(
+    align = "center",
+    columns = Mean: `Very often or always true`
+  ) %>%
+  opt_align_table_header(align = "left") %>%
+# add coloured dots and lines on the first column
+  gt_plt_dot(
+    Mean,
+    Items,
+    palette = "ggthemes::fivethirtyeight"
+  ) %>% tab_options(
+    table.font.size = px(30L)) %>%
+   tab_row_group(
+      label = md("**Nonreact**"),
+      rows = c(4 ,9,19,21,24,29,33)
+        ) %>%
+  tab_row_group(
+      label = md("**Nonjudge**"),
+      rows = c(3 ,10 ,14 ,17 ,25 ,30,35,39)
+        ) %>%
+  tab_row_group(
+      label = md("**Awareness**"),
+      rows = c(5 ,8 ,13 ,18 ,23 ,28 ,34 ,38)
+        ) %>%
+  tab_row_group(
+      label = md("**Describe**"),
+      rows = c(2 ,7 ,12 ,16 ,22 ,27 ,32 ,37)
+        ) %>%
+  tab_row_group(
+      label = md("**Observe**"),
+      rows = c(1 ,6 ,11 ,15 ,20 ,26 ,31 ,36)
+        ) %>%
+ gtsave("Figures/PNG/Fig2.png", vwidth = 3000)
+
+
+```
+
+
 Table\@ref(tab:tabDes) reports univariate descriptive statistics for the 39 items of BBFQ. Our data violated the normality assumption tested by the Shapiro-Wilk test of normality [@RN1260]. The corrected item-total correlations for each facets ranged between: observe: `r apa(min(ob.icor),2,F)` - `r apa(max(ob.icor),2,F)`; describe: `r apa(min(des.icor),2,F)` - `r apa(max(des.icor),2,F)`; actwar: `r apa(min(actw.icor),2,F)` - `r apa(max(actw.icor),2,F)`; nonjudge: `r apa(min(nj.icor),2,F)` - `r apa(max(nj.icor),2,F)` and nonreact: `r apa(min(nr.icor),2,F)` - `r apa(max(nr.icor),2,F)`.
 
 ```{r tabDes, results='asis'}
+#Prints the descriptives in the manuscript
 apa_table(descriptives, caption = "Descriptive Statistics")
 ```
 
@@ -614,6 +777,8 @@ colnames(unidim.rel) <- "Mcdonald's Omega"
 ```
 
 ```{r Unidim, include =F}
+
+#Creates table 1 in the manuscript
 tab1 <-  tabledown::cfa.tab.multi(fit.ob, fit.des, fit.des.mi,   robust = F)
 tab2 <- tabledown::cfa.tab.multi(fit.aw, fit.nonj, fit.nonj.mi,robust = F)
 tab3 <- tabledown::cfa.tab(fit.nonr,robust = F)
@@ -630,6 +795,7 @@ unidimension2 <- cbind(unidimension1,unidim.rel)
 We have checked the assumption of unidimensionality of each facets of BFFMQ through categorical CFA and assessed the fit model fit using CFI, TLI, RMSEA and SRMR values and $\chi^2$ statistic. Table @\ref(tab:Unitab) summarizes the model fit of each facets. All fitted model exhibited a significant $\chi^2$ statistic. However, $\chi^2$ statistic is well known for its sensitivity towards sample size [@RN1231]. As such more emphasize were given towards other fit indices. Other fit indices indicated good fit to "observe" and "actwar" facet. Acceptable fit was observed for "nonreact" facet. Describe facet attained good fit after allowing three pairs of items to covary their error variance in the model( items: 12-22; 12-16; 16-22).  Similarly, "nonjudge" facet achieved best fit after allowing error variance of item 14 and 17 to covary in the model.The internal consistency reliability coeffcients Mcdonald$'$s $\omega_t$ ranged between `r min(unidimension2[10])` to `r max(unidimension2[10])`. These findings allowed us to assume unidimentionality of each facet of the BFFMQ
 
 ```{r Unitab, results='asis'}
+#Table1
 apa_table(unidimension2, caption = "Unidimensionality of each Mindfulness facet")
 ```
 
@@ -808,7 +974,6 @@ colnames(all.itemfit.selected.sa) = c("Items",  "S-X2", "df",  "RMSEA", "p" )
 apa_table(all.itemfit.selected.sa,landscape = F, caption = "Item fit Statistics: SA")
 ```
 
-
 ```{r IRT3, include =F}
 #Third Iteration
 #Define revised  model based on item fit
@@ -923,9 +1088,7 @@ nonreact.IIC.1 <- plot(nonreact.fit.2, type = "infotrace", facet =T, main = "Non
 
 ```
 
-
-
-```{r OCC-irt3,  include=FALSE}
+```{r mirtocc,  include=FALSE}
 #general inspection of Option charecteristics curve based on the third iteration
 
 
@@ -938,293 +1101,15 @@ nonreact.OCC<- plot(nonreact.fit.2, type = "trace", facet =T, main = "Nonreact O
 #38, 22, 39, 3, and 17 are problematic and removed
 ```
 
-
-
-```{r ggitem-info-all-plots}
-#We used all item-info plot in the manuscript
-#Observe
-info.item1 <- ggiteminfo(observe.fit.2,1,6)+ggtitle("Obs:item01")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+ geom_area(fill =  "#E64B3599")
-
-info.item6 <- ggiteminfo(observe.fit.2,2,6)+ggtitle("Obs:item06")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#E64B3599")
-
-info.item11 <- ggiteminfo(observe.fit.2,3,6)+ggtitle("Obs:item11")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#E64B3599")
-
-info.item15 <- ggiteminfo(observe.fit.2,4,6)+ggtitle("Obs:item15")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#E64B3599")
-
-info.item20 <- ggiteminfo(observe.fit.2,5,6)+ggtitle("Obs:item20")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#E64B3599")
-
-info.item26 <- ggiteminfo(observe.fit.2,6,6)+ggtitle("Obs:item26")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#E64B3599")
-
-info.item31 <- ggiteminfo(observe.fit.2,7,6)+ggtitle("Obs:item31")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#E64B3599")
-
-info.item36 <- ggiteminfo(observe.fit.2,8,6)+ggtitle("Obs:item36")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#E64B3599")
-
-observe_iic <- cowplot::plot_grid(
- info.item1, info.item6,info.item11,info.item15, info.item20,info.item26, info.item31, info.item36,
-                               labels = NULL,
-                               align="v",
-                               ncol = 2,
-                               label_size = 25,
-                               label_fontfamily = "sans",
-                               label_fontface = "plain")
-
-
-# ggsave("Figures/observe_info.png",observe_icc , units = "mm", width = 84, height = 117, dpi = 300, bg = "white")
-
-
-# Describe
-
-info.item7 <- ggiteminfo(describe.fit.2,1,6)+ggtitle("Des:item07")+apatheme+scale_y_continuous(breaks=c(0,.8,1.5), limits = c(0, 1.5))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill="#4DBBD599")
-
-info.item22 <- ggiteminfo(describe.fit.2,2,6)+ggtitle("Des:item22")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill=  "#4DBBD599")
-
-info.item27 <- ggiteminfo(describe.fit.2,3,6)+ggtitle("Des:item27")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#4DBBD599")
-
-info.item32 <- ggiteminfo(describe.fit.2,4,6)+ggtitle("Des:item32")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.8,1.5), limits = c(0, 1.5))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#4DBBD599")
-
-info.item37 <- ggiteminfo(describe.fit.2,5,6)+ggtitle("Des:item37")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#4DBBD599")
-
-
-describe_iic <- cowplot::plot_grid(
-
- info.item7, info.item22, info.item27, info.item32, info.item37,
- 
-                               labels = NULL,
-                               align="v",
-                               ncol = 2,
-                               label_size = 20,
-                               label_fontfamily = "sans",
-                               label_fontface = "plain")
-
-# ggsave("Figures/describe_info.png",describe_icc , units = "mm", width = 84, height = 117, dpi = 300, bg = "white")
-
-
-
-
-
-#Actwar
-info.item5 <- ggiteminfo(awareness.fit.2,1,6)+ggtitle("Actw:item05")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#00A08799")
-
-info.item8 <- ggiteminfo(awareness.fit.2,2,6)+ggtitle("Actw:item08")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#00A08799")
-
-info.item13 <- ggiteminfo(awareness.fit.2,3,6)+ggtitle("Actw:item13")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#00A08799")
-
-info.item18 <- ggiteminfo(awareness.fit.2,4,6)+ggtitle("Actw:item18")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#00A08799")
-
-info.item23 <- ggiteminfo(awareness.fit.2,5,6)+ggtitle("Actw:item23")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#00A08799")
-
-info.item28 <- ggiteminfo(awareness.fit.2,6,6)+ggtitle("Actw:item28")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#00A08799")
-
-info.item34 <- ggiteminfo(awareness.fit.2,7,6)+ggtitle("Actw:item34")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.8,1.5), limits = c(0, 1.5))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#00A08799")
-
-info.item38 <- ggiteminfo(awareness.fit.2,8,6)+ggtitle("Actw:item38")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#00A08799")
-
-
-actwar_icc <- cowplot::plot_grid(
-
- info.item5,info.item8, info.item13, info.item18, info.item23, info.item28, info.item34, info.item38,
-                    labels = NULL,
-                               align="v",
-                               ncol = 2,
-                               label_size = 20,
-                               label_fontfamily = "sans",
-                               label_fontface = "plain")
-
-
-# ggsave("Figures/actwar_info.png",actwar_icc , units = "mm", width = 84, height = 117, dpi = 300, bg = "white")
-
-
-#Nonjudge
-
-info.item3 <- ggiteminfo(nonjudge.fit.2,1,6)+ggtitle("Nonj:item03")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(aes(fill =  "#3C548899"))
-
-info.item10 <- ggiteminfo(nonjudge.fit.2,2,6)+ggtitle("Nonj:item10")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(aes(fill =  "#3C548899"))
-
-info.item17 <- ggiteminfo(nonjudge.fit.2,3,6)+ggtitle("Nonj:item17")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(aes(fill =  "#3C548899"))
-
-info.item25 <- ggiteminfo(nonjudge.fit.2,4,6)+ggtitle("Nonj:item25")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(aes(fill =  "#3C548899"))
-
-info.item30 <- ggiteminfo(nonjudge.fit.2,5,6)+ggtitle("Nonj:item30")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(aes(fill =  "#3C548899"))
-
-info.item35 <- ggiteminfo(nonjudge.fit.2,6,6)+ggtitle("Nonj:item35")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(aes(fill =  "#3C548899"))
-
-info.item39 <- ggiteminfo(nonjudge.fit.2,7,6)+ggtitle("Nonj:item39")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(aes(fill =  "#3C548899"))
-
-
-nonjudge_icc <- cowplot::plot_grid(
-
- info.item3, info.item10, info.item17, info.item25, info.item30, info.item35, info.item39,
-                   labels = NULL,
-                               align="v",
-                               ncol = 2,
-                               label_size = 20,
-                               label_fontfamily = "sans",
-                               label_fontface = "plain")
-# ggsave("Figures/nonjudge_info.png",nonjudge_icc , units = "mm", width = 84, height = 117, dpi = 300, bg = "white")
-
-#nonreact
-
-info.item4 <- ggiteminfo(nonreact.fit.2,1,6)+ggtitle("Nonr:item04")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#B09C8599")
-
-info.item9 <- ggiteminfo(nonreact.fit.2,2,6)+ggtitle("Nonr:item09")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#B09C8599")
-
-info.item19 <- ggiteminfo(nonreact.fit.2,3,6)+ggtitle("Nonr:item19")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#B09C8599")
-
-info.item21 <- ggiteminfo(nonreact.fit.2,4,6)+ggtitle("Nonr:item21")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#B09C8599")
-
-info.item24 <- ggiteminfo(nonreact.fit.2,5,6)+ggtitle("Nonr:item24")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#B09C8599")
-info.item29 <- ggiteminfo(nonreact.fit.2,6,6)+ggtitle("Nonr:item29")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#B09C8599")
-
-info.item33 <- ggiteminfo(nonreact.fit.2,7,6)+ggtitle("Nonr:item33")+apatheme+scale_color_npg()+
-scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
-  xlab(expression(theta)) + 
-  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#B09C8599")
-
-
-
-nonreact_icc <- cowplot::plot_grid(
-
- info.item4, info.item9, info.item19, info.item21, info.item24, info.item29, info.item33,
-                               labels = NULL,
-                               align="v",
-                               ncol = 2,
-                               label_size = 20,
-                               label_fontfamily = "sans",
-                               label_fontface = "plain")
-
-# ggsave("Figures/nonreact.png",nonreact_icc , units = "mm", width = 84, height = 117, dpi = 300, bg = "white")
-
-
-all_info <- cowplot::plot_grid(
- info.item1, info.item6,info.item11,info.item15, info.item20,info.item26, info.item31, info.item26,
- info.item7, info.item22, info.item27, info.item32, info.item37,
- info.item5,info.item8, info.item13, info.item18, info.item23, info.item28, info.item34, info.item38,
- info.item3, info.item10, info.item17, info.item25, info.item30, info.item35, info.item39,
- info.item4, info.item9, info.item19, info.item21, info.item24, info.item29, info.item33,
-                               labels = NULL,
-                               align="v",
-                               ncol = 6,
-                               label_size = 18,
-                               label_fontfamily = "sans",
-                               label_fontface = "plain")
-
-
-
-ggsave("Figures/Fig3.png",all_info , units = "mm", width = 174, height = 234, dpi = 600, bg = "white")
-
-
-```
-
-```{r problematic-icc, include=F}
-#Publication quality OCC
+```{r Fig3, include=F}
+#Code for fig3 one ideal OCC and 5 promlematic OCC
 library(ggsci)
 
 #For legends
 item01.icc.legends <- ggicc(observe.fit.2,1,6)+ggtitle("Observe: item01")+apatheme+scale_color_npg()+
   scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))
 
-# 38, 22, 39, 3, and 17
+# 38, 22, 39, 3, and 17: problematic items
 
 item38.icc <- tabledown::ggicc(awareness.fit.2,8,6)+ggtitle("item38")+apatheme+scale_color_npg()+
 scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")
@@ -1244,7 +1129,7 @@ item17.icc <- ggicc(nonjudge.fit.2,3,6)+ggtitle("item17")+apatheme+scale_color_n
   scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")
 
 
-
+#item 26 representative OCC
 item26.icc <- ggicc(observe.fit.2,6,6)+ggtitle("Representative OCC: item26")+apatheme+scale_color_npg()+
   scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")
 
@@ -1268,7 +1153,7 @@ problematic_icc <- cowplot::plot_grid(item26.icc,item03.icc,item17.icc,
 
 problematic_icc_2 <- plot_grid(problematic_icc, icc.legend, ncol = 1, rel_heights =  c(1, .12))
 
-ggsave("Figures/Fig4.tiff",problematic_icc_2 , units = "mm", width = 174, height = 117, dpi = 600, bg = "white")
+ggsave("Figures/PNG/Fig3.png",problematic_icc_2 , units = "mm", width = 174, height = 117, dpi = 600, bg = "white")
 
 
 
@@ -1494,6 +1379,283 @@ all_icc_2 <- plot_grid(all_icc, icc.legend, ncol = 1, rel_heights   = c(1, .12))
 
 ```
 
+```{r Fig4, include=F}
+#We used all item-info plot (Fig4) in the manuscript
+#Observe
+info.item1 <- ggiteminfo(observe.fit.2,1,6)+ggtitle("Obs:item01")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+ geom_area(fill =  "#E64B3599")
+
+info.item6 <- ggiteminfo(observe.fit.2,2,6)+ggtitle("Obs:item06")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#E64B3599")
+
+info.item11 <- ggiteminfo(observe.fit.2,3,6)+ggtitle("Obs:item11")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#E64B3599")
+
+info.item15 <- ggiteminfo(observe.fit.2,4,6)+ggtitle("Obs:item15")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#E64B3599")
+
+info.item20 <- ggiteminfo(observe.fit.2,5,6)+ggtitle("Obs:item20")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#E64B3599")
+
+info.item26 <- ggiteminfo(observe.fit.2,6,6)+ggtitle("Obs:item26")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#E64B3599")
+
+info.item31 <- ggiteminfo(observe.fit.2,7,6)+ggtitle("Obs:item31")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#E64B3599")
+
+info.item36 <- ggiteminfo(observe.fit.2,8,6)+ggtitle("Obs:item36")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#E64B3599")
+
+observe_iic <- cowplot::plot_grid(
+ info.item1, info.item6,info.item11,info.item15, info.item20,info.item26, info.item31, info.item36,
+                               labels = NULL,
+                               align="v",
+                               ncol = 2,
+                               label_size = 25,
+                               label_fontfamily = "sans",
+                               label_fontface = "plain")
+
+
+# ggsave("Figures/observe_info.png",observe_icc , units = "mm", width = 84, height = 117, dpi = 300, bg = "white")
+
+
+# Describe
+
+info.item7 <- ggiteminfo(describe.fit.2,1,6)+ggtitle("Des:item07")+apatheme+scale_y_continuous(breaks=c(0,.8,1.5), limits = c(0, 1.5))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill="#4DBBD599")
+
+info.item22 <- ggiteminfo(describe.fit.2,2,6)+ggtitle("Des:item22")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill=  "#4DBBD599")
+
+info.item27 <- ggiteminfo(describe.fit.2,3,6)+ggtitle("Des:item27")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#4DBBD599")
+
+info.item32 <- ggiteminfo(describe.fit.2,4,6)+ggtitle("Des:item32")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.8,1.5), limits = c(0, 1.5))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#4DBBD599")
+
+info.item37 <- ggiteminfo(describe.fit.2,5,6)+ggtitle("Des:item37")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#4DBBD599")
+
+
+describe_iic <- cowplot::plot_grid(
+
+ info.item7, info.item22, info.item27, info.item32, info.item37,
+ 
+                               labels = NULL,
+                               align="v",
+                               ncol = 2,
+                               label_size = 20,
+                               label_fontfamily = "sans",
+                               label_fontface = "plain")
+
+# ggsave("Figures/describe_info.png",describe_icc , units = "mm", width = 84, height = 117, dpi = 300, bg = "white")
+
+
+
+
+
+#Actwar
+info.item5 <- ggiteminfo(awareness.fit.2,1,6)+ggtitle("Actw:item05")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#00A08799")
+
+info.item8 <- ggiteminfo(awareness.fit.2,2,6)+ggtitle("Actw:item08")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#00A08799")
+
+info.item13 <- ggiteminfo(awareness.fit.2,3,6)+ggtitle("Actw:item13")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#00A08799")
+
+info.item18 <- ggiteminfo(awareness.fit.2,4,6)+ggtitle("Actw:item18")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#00A08799")
+
+info.item23 <- ggiteminfo(awareness.fit.2,5,6)+ggtitle("Actw:item23")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#00A08799")
+
+info.item28 <- ggiteminfo(awareness.fit.2,6,6)+ggtitle("Actw:item28")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1.2))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#00A08799")
+
+info.item34 <- ggiteminfo(awareness.fit.2,7,6)+ggtitle("Actw:item34")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.8,1.5), limits = c(0, 1.5))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#00A08799")
+
+info.item38 <- ggiteminfo(awareness.fit.2,8,6)+ggtitle("Actw:item38")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#00A08799")
+
+
+actwar_icc <- cowplot::plot_grid(
+
+ info.item5,info.item8, info.item13, info.item18, info.item23, info.item28, info.item34, info.item38,
+                    labels = NULL,
+                               align="v",
+                               ncol = 2,
+                               label_size = 20,
+                               label_fontfamily = "sans",
+                               label_fontface = "plain")
+
+
+# ggsave("Figures/actwar_info.png",actwar_icc , units = "mm", width = 84, height = 117, dpi = 300, bg = "white")
+
+
+#Nonjudge
+
+info.item3 <- ggiteminfo(nonjudge.fit.2,1,6)+ggtitle("Nonj:item03")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#3C548899")
+
+info.item10 <- ggiteminfo(nonjudge.fit.2,2,6)+ggtitle("Nonj:item10")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#3C548899")
+
+info.item17 <- ggiteminfo(nonjudge.fit.2,3,6)+ggtitle("Nonj:item17")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#3C548899")
+
+info.item25 <- ggiteminfo(nonjudge.fit.2,4,6)+ggtitle("Nonj:item25")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#3C548899")
+
+info.item30 <- ggiteminfo(nonjudge.fit.2,5,6)+ggtitle("Nonj:item30")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#3C548899")
+
+info.item35 <- ggiteminfo(nonjudge.fit.2,6,6)+ggtitle("Nonj:item35")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#3C548899")
+
+info.item39 <- ggiteminfo(nonjudge.fit.2,7,6)+ggtitle("Nonj:item39")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#3C548899")
+
+
+nonjudge_icc <- cowplot::plot_grid(
+
+ info.item3, info.item10, info.item17, info.item25, info.item30, info.item35, info.item39,
+                   labels = NULL,
+                               align="v",
+                               ncol = 2,
+                               label_size = 20,
+                               label_fontfamily = "sans",
+                               label_fontface = "plain")
+# ggsave("Figures/nonjudge_info.png",nonjudge_icc , units = "mm", width = 84, height = 117, dpi = 300, bg = "white")
+
+#nonreact
+
+info.item4 <- ggiteminfo(nonreact.fit.2,1,6)+ggtitle("Nonr:item04")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#B09C8599")
+
+info.item9 <- ggiteminfo(nonreact.fit.2,2,6)+ggtitle("Nonr:item09")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#B09C8599")
+
+info.item19 <- ggiteminfo(nonreact.fit.2,3,6)+ggtitle("Nonr:item19")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#B09C8599")
+
+info.item21 <- ggiteminfo(nonreact.fit.2,4,6)+ggtitle("Nonr:item21")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#B09C8599")
+
+info.item24 <- ggiteminfo(nonreact.fit.2,5,6)+ggtitle("Nonr:item24")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#B09C8599")
+info.item29 <- ggiteminfo(nonreact.fit.2,6,6)+ggtitle("Nonr:item29")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#B09C8599")
+
+info.item33 <- ggiteminfo(nonreact.fit.2,7,6)+ggtitle("Nonr:item33")+apatheme+scale_color_npg()+
+scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")+
+  xlab(expression(theta)) + 
+  ylab(expression(I(theta)))+geom_hline(yintercept = .20, linetype="dashed")+geom_area(fill =  "#B09C8599")
+
+
+
+nonreact_icc <- cowplot::plot_grid(
+
+ info.item4, info.item9, info.item19, info.item21, info.item24, info.item29, info.item33,
+                               labels = NULL,
+                               align="v",
+                               ncol = 2,
+                               label_size = 20,
+                               label_fontfamily = "sans",
+                               label_fontface = "plain")
+
+# ggsave("Figures/nonreact.png",nonreact_icc , units = "mm", width = 84, height = 117, dpi = 300, bg = "white")
+
+
+all_info <- cowplot::plot_grid(
+ info.item1, info.item6,info.item11,info.item15, info.item20,info.item26, info.item31, info.item26,
+ info.item7, info.item22, info.item27, info.item32, info.item37,
+ info.item5,info.item8, info.item13, info.item18, info.item23, info.item28, info.item34, info.item38,
+ info.item3, info.item10, info.item17, info.item25, info.item30, info.item35, info.item39,
+ info.item4, info.item9, info.item19, info.item21, info.item24, info.item29, info.item33,
+                               labels = NULL,
+                               align="v",
+                               ncol = 6,
+                               label_size = 18,
+                               label_fontfamily = "sans",
+                               label_fontface = "plain")
+
+
+
+ggsave("Figures/PNG/Fig4.png",all_info , units = "mm", width = 174, height = 234, dpi = 600, bg = "white")
+ggsave("Figures/Fig3.tiff",all_info , units = "mm", width = 174, height = 234, dpi = 600, bg = "white")
+
+
+```
+
 ```{r IRT4, include =F}
 #Final model
 #(without item 04, 22, 38, 39, 03,17)
@@ -1613,7 +1775,7 @@ range(IRT.details.1$a)
 Item information curve (IIC)  indicate the amount of information an item carry along the latent trait continuum (supplimentary Figure--------). Upon inspection we identified 4 items (22, 38, 39, 3) with relatively flat curve  (I($\theta$)<.20). Option Characteristics Curves (OCC) showed the probability of endorsing each response choice (y-axis) as a function of underlying latent trait( x-axis). The OCCs (Figure \@ref(fig:fig-occ)) showed all items except items 38,22, 39, 3, and 17 had appropriately monotonically ordered response options.
 
 ```{r fig-occ, fig.cap= "Option Charecteristics curve (A) Observe, (B) Describe, (C)Act with awareness, (D)Nonjudgement, (E) Nonreact" , results= 'asis'}
-knitr::include_graphics('Figures/Fig6.png', dpi =600)
+knitr::include_graphics('Figures/PNG/Fig3.png', dpi =600)
 
 ```
 
@@ -1629,7 +1791,6 @@ apa_table(IRT.details,landscape = F, caption = "IRT Description")
 apa_table(IRT.details.1,landscape = F, caption = "IRT Description")
 ```
 
-
 ```{r OCC, include=F}
 ##Option charecteristics curve
 observe.OCC.1 <- plot(observe.fit.3, type = "trace", facet =T, main = "Observe")
@@ -1640,8 +1801,7 @@ nonreact.OCC.1 <- plot(nonreact.fit.3, type = "trace", facet =T, main = "Nonreac
 
 ```
 
-
-```{r personfitd, include=FALSE}
+```{r Fig5, include=FALSE}
 #Person Fit ####
 
 observe.personfit <- personfit(observe.fit.3) 
@@ -1690,17 +1850,15 @@ nonr.per.fit <- ggplot(nonr.personfit, aes(x=Zh)) + geom_histogram(binwidth=.6,c
 personfit <- cowplot::plot_grid(observe.per.fit, des.per.fit, act.per.fit, nonj.per.fit, nonr.per.fit, labels = "AUTO",ncol=3, label_size = 12,align = "v",
                   label_fontface = "plain")
 
-ggsave("Figures/Fig5.png",personfit, units = "mm", width = 174, height = 117, dpi = 600, bg = "white")
+ggsave("Figures/PNG/Fig5.png",personfit, units = "mm", width = 174, height = 117, dpi = 600, bg = "white")
 
 
 ```
-
 
 ```{r person-fit, fig.cap= "Person Fit of the Five fitted Models (A) Observe, (B) Describe, (C)Act with awareness, (D)Nonjudgement, (E) Nonreact" , results= 'asis'}
-knitr::include_graphics('Figures/Fig5.png', dpi =600)
+knitr::include_graphics('Figures/PNG/Fig5.png', dpi =600)
 
 ```
-
 
 ```{r TIC, eval=FALSE, include=FALSE}
 #Not used in the manuscript
@@ -1769,6 +1927,25 @@ nonreact_rel_plotly <- plotly::ggplotly(ggreliability_plotly(nonreact.refit.2, n
 
 ```
 
+```{r apathemelong, include=F}
+apatheme_large=theme_bw()+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        #text=element_text(family = "Helvetica"),
+        axis.text.x = element_text(size = 90),
+        axis.text.y = element_text(size = 90),
+        axis.title.x = element_text(size = 90),
+        axis.title.y = element_text(size = 90),
+        plot.title = element_text(size = 90),
+        legend.text = element_text(size = 90),
+        legend.title=element_blank(),
+        axis.line.x = element_line(color='black'),
+        axis.line.y = element_line(color='black'),
+        panel.border = element_rect(color = "black",
+                                    fill = NA,
+                                    size = 1))
+```
 
 ```{r TICggplot, include=FALSE}
 ##Test info
@@ -1808,25 +1985,21 @@ TIC.plot <- cowplot::plot_grid(observe.TIC.1,describe.TIC.1, awareness.TIC.1,
                    labels = "auto",
                      align="v",
                      ncol = 3,
-                     label_size = 40,
+                     label_size = 90,
                      # label_fontfamily = "Arial",
                      label_fontface = "plain")
-ggsave("Figures/Fig6.png",TIC.plot, units = "mm", width = 174, height = 150, dpi = 600, bg = "white")
+ggsave("Figures/PNG/Fig6.png",TIC.plot, units = "mm", width = 174, height = 150, dpi = 600, bg = "white")
 
 
 
 ```
-
-
 
 ```{r Testinfo, fig.cap="Test information curves (a) observe (b) describe (c) actware  (d) nonjudge (e) nonreact", warning=FALSE}
 
-knitr::include_graphics('Figures/Fig6.png', dpi =600)
+knitr::include_graphics('Figures/PNG/Fig6.png', dpi =600)
 ```
 
-
-
-```{r con-rel, include =F}
+```{r Fig7, include =F}
 #conditional reliability
 observe_reliability <- tabledown::ggreliability(observe.refit.2, observe.fit.3)+apatheme+geom_area()+theme(legend.position = "none")+
   aes(fill =  "#E64B3599")+scale_fill_identity() +xlab(expression(theta)) + 
@@ -1862,12 +2035,12 @@ reliability_plot <- cowplot::plot_grid(observe_reliability,describe_reliability,
                    labels = "auto",
                      align="v",
                      ncol = 3,
-                     label_size = 40,
+                     label_size = 80,
                      # label_fontfamily = "Arial",
                      label_fontface = "plain")
 
 
-ggsave("Figures/Fig7.png",reliability_plot, units = "mm", width = 174, height = 150, dpi = 600, bg = "white")
+ggsave("Figures/PNG/Fig7.png",reliability_plot, units = "mm", width = 174, height = 150, dpi = 600, bg = "white")
 
 
 marginal.rel.observe <- marginal_rxx(observe.fit.3)
@@ -1890,11 +2063,9 @@ Test information curves with standard error for the revised models (Fig \@ref(fi
 
 
 ```{r conrel-fig, fig.cap= "Conditional Reliability plots: (A) Observe, (B) Describe, (C)Act with awareness", results='asis'}
-knitr::include_graphics('Figures/Fig7.png', dpi =600)
+knitr::include_graphics('Figures/PNG/Fig7.png', dpi =600)
 
 ```
-
-
 
 ```{r estimation, include=F}
 observe.estimation <- as.vector(fscores(observe.fit.3, method = "EAP",
@@ -1943,8 +2114,8 @@ itemlevelcolors <- matrix(rep(brewer.pal(4, "Set1"), 31), byrow = TRUE, ncol = 4
 
 ```
 
-```{r saveWrightmao, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
-jpeg("Figures/wp.png", width = 800, height = 750)
+```{r Fig8, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+jpeg("Figures/PNG/Fig8.png", width = 800, height = 750)
 WrightMap::wrightMap(estimation, threshold, 
           item.prop = 0.65,
           main.title = "Five Facet Mindfulness Questionnaire",
@@ -1961,7 +2132,7 @@ WrightMap::wrightMap(estimation, threshold,
 
 ```{r WP, eval=FALSE, fig.cap="Person Item Map", warning=FALSE, include=FALSE, out.height="120%", out.width="100%"}
 
-knitr::include_graphics('Figures/wp.png')
+knitr::include_graphics('Figures/PNG/Fig8.png')
 ```
 
 
@@ -1982,18 +2153,15 @@ labels <- do.call(rbind,labels)
 
 p1 <- ggplot(totalscore_1, aes(x=Theta, y=totalscore))+geom_line()+xlab(expression(theta))+ylab(expression(T(theta)))+theme(legend.position = "none")+geom_segment(aes(x=0,xend=-Inf,y=perc[2],yend=perc[2]))+
   geom_segment(aes(x=0,xend=0,y=-Inf,yend=perc[2]))+
-  geom_text(data = tibble (x = -.40, y = perc[2]+.8),
+  geom_text(data = tibble (x = -.60, y = perc[2]+.8),
             aes(x=x, y = y,  label = perc[2]), inherit.aes = FALSE, size = 12)
 
-
- 
-  
 # +ylab("Percentile Rank") +scale_y_continuous(breaks=perc, labels= l)+
-
-  
 
   return(p1)
 }
+
+
 
 ggscore <- function(model){
   Theta <- matrix(seq(-6,6, by = .1))
@@ -2078,7 +2246,7 @@ score.plot <- cowplot::plot_grid(observe_score ,describe_score, awareness_score,
                      label_size = 40,
                      # label_fontfamily = "Arial",
                      label_fontface = "plain")
-ggsave("Figures/score.png",score.plot , units = "mm", width = 174, height = 150, dpi = 600, bg = "white")
+# ggsave("Figures/score.png",score.plot , units = "mm", width = 174, height = 150, dpi = 600, bg = "white")
 
 
 observe_score_tab <- ggtotalscore_tab(observe.fit.3)
@@ -2143,7 +2311,7 @@ esem_model <- syntax_composer(esem_tareget_efa, referents)
 #Fit the model
 esem_fit <- lavaan::cfa(esem_model, esem_data,ordered = names(esem_data), estimator = "WLSMV", mimic = "Mplus", std.lv=T)
 
- summary(esem_fit, fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
+summary(esem_fit, fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
 
 
 fitmeasures (esem_fit ,c("gfi", "agfi", "nfi","rfi", "cfi.scaled","tli.scaled","rmsea.scaled", "srmr","aic"))
@@ -2188,7 +2356,7 @@ esem_model_higher_order <- syntax_composer(esem_tareget_efa_higher_order , refer
 
 
 #Fit the model
-esem_fit_higher_order <- lavaan::cfa(esem_model_higher_order, fscores, ordered = names(fscores),estimator = "WLSMV", mimic = "Mplus", std.lv=T)
+esem_fit_higher_order <- lavaan::cfa(esem_model_higher_order, fscores,estimator = "WLSMV", mimic = "Mplus", std.lv=T)
 
 summary(esem_fit_higher_order , fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
 
@@ -2210,7 +2378,7 @@ fscores <- as.data.frame(factor_score$scores)
 
 
 #Rename variables
-names(fscores ) <- paste0("x", c(1:5))
+names(fscores ) <- c("Obs", "Des", "Actw", "Nonj", "Nonr")
 
 #creating a target matrix
 # target_rot <- esemComp::make_target(5,#Item number
@@ -2221,7 +2389,7 @@ names(fscores ) <- paste0("x", c(1:5))
 esem_tareget_efa_higher_order <- esem_efa(fscores,nfactors=2, fm="ml")
 
 #Find the referent item for each factor
-referents_higher_order <- find_referents(esem_tareget_efa_higher_order , factor_names = c("Orientation To Experience","Self-regulated Attention"))
+referents_higher_order <- find_referents(esem_tareget_efa_higher_order , factor_names = c("OTE","SRA"))
 
 #make esem model
 esem_model_higher_order <- syntax_composer(esem_tareget_efa_higher_order , referents_higher_order )
@@ -2231,14 +2399,14 @@ esem_model_higher_order <- syntax_composer(esem_tareget_efa_higher_order , refer
 
 
 #Fit the model
-esem_fit_higher_order <- lavaan::cfa(esem_model_higher_order, fscores, ordered = names(fscores),estimator = "WLSMV", mimic = "Mplus", std.lv=T)
+esem_fit_higher_order <- lavaan::cfa(esem_model_higher_order, fscores ,estimator = "WLSMV", mimic = "Mplus", std.lv=T)
 
 summary(esem_fit_higher_order , fit.measures =TRUE,standardized = TRUE, rsq =TRUE)
 
 
 fitmeasures (esem_fit_higher_order  ,c("gfi", "agfi", "nfi","rfi", "cfi.scaled","tli.scaled","rmsea.scaled", "srmr","aic"))
 
-#  rel.esm_ho <- reliability(esem_fit_higher_order , return.total = TRUE)
+rel.esm_ho <- reliability(esem_fit_higher_order , return.total = TRUE)
 # # 
 # # rel.esm_ho.m <- rel.esm_ho[4,]
 # Total scale omega is .74. each factors alpha f1=.54, f2 =.54. omega F1=.44, F2=.30.
@@ -2246,11 +2414,13 @@ fitmeasures (esem_fit_higher_order  ,c("gfi", "agfi", "nfi","rfi", "cfi.scaled",
 ```
 
 ```{r esemplot}
+png("Figures/ESEM.png", width = 84, height = 117, units = "mm", bg = "white", res = 300)
 semPaths (esem_fit_higher_order, 
           what= "std",
+          #"hide", #(hides coefficeits)
           #whatLabels = "std",
           intercepts = F,
-          #style ="lisrel",
+          style ="OpenMx",
           #residScale = 6,
           theme = "colorblind",
           nCharNodes = 0,
@@ -2259,15 +2429,24 @@ semPaths (esem_fit_higher_order,
           layout ="tree",
           cardinal = T,
           curvePivot =T,
-          sizeMan =10,
-          sizeMan2 = 1.5,
-          sizeLat = 10,
-          #edge.color = "black",
+          sizeMan =8,#items length
+          sizeMan2 = 2,#items
+          sizeLat = 12,#factors
           thresholds = FALSE,
-          equalizeManifests =T,
-          fade = FALSE,
-          edge.label.cex = .65,
-          exoCov = T)
+          equalizeManifests =F,
+          fade = T,
+          edge.label.cex = .8,
+          exoCov = T,
+          centerLevels = T,
+          # edge.color="black",
+          label.scale=T,
+          label.cex=1.2, #Font of factor and item name
+          residuals=T)
+           #exoVar=FALSE,
+          #fixedStyle=6, #Style of arrow (guide item)
+          #freeStyle=1#Style of arrow (other item), #XKCD = TRUE
+           
+dev.off()
 ```
 
 ## Confirmatory Factor Analysis
@@ -2500,13 +2679,14 @@ apa_table(Invariance.table, align = "c",  caption = "Invariance Analysis", note 
 ```
 
 ```{r CFAplot, include =FALSE}
-png("Figures/CFAplot1.png", width = 84, height = 117, units = "mm", bg = "white", res = 300)
+# png("Figures/CFAplot1.png", width = 84, height = 117, units = "mm", bg = "white", res = 300)
 # 2. Create the plot
 semPaths (fit.irt.1  , 
           what= "std",
+          #"hide", #(hides coefficeits)
           #whatLabels = "std",
           intercepts = F,
-          #style ="lisrel",
+          style ="OpenMx",
           #residScale = 6,
           theme = "colorblind",
           nCharNodes = 0,
@@ -2515,26 +2695,34 @@ semPaths (fit.irt.1  ,
           layout ="tree",
           cardinal = T,
           curvePivot =T,
-          sizeMan =10,
-          sizeMan2 = 1.5,
-          sizeLat = 10,
-          #edge.color = "black",
+          sizeMan =8,#items length
+          sizeMan2 = 2,#items
+          sizeLat = 12,#factors
           thresholds = FALSE,
-          equalizeManifests =T,
-          fade = FALSE,
-          edge.label.cex = .65,
-          exoCov = FALSE)
+          equalizeManifests =F,
+          fade = T,
+          edge.label.cex = .8,
+          exoCov = F,
+          centerLevels = T,
+          # edge.color="black",
+          label.scale=T,
+          label.cex=1.2, #Font of factor and item name
+          residuals=T)
+           #exoVar=FALSE,
+          #fixedStyle=6, #Style of arrow (guide item)
+          #freeStyle=1#Style of arrow (other item), #XKCD = TRUE
 # 3. Close the file
-dev.off()
+# dev.off()
 
-
-png("Figures/CFAplot2.png", width = 84, height = 117, units = "mm", bg = "white", res = 300)
+# 
+# png("Figures/CFAplot2.png", width = 84, height = 117, units = "mm", bg = "white", res = 300)
 # 2. Create the plot
 semPaths (fit.irt.H.1, 
           what= "std",
+          #"hide", #(hides coefficeits)
           #whatLabels = "std",
           intercepts = F,
-          #style ="lisrel",
+          style ="OpenMx",
           #residScale = 6,
           theme = "colorblind",
           nCharNodes = 0,
@@ -2543,17 +2731,24 @@ semPaths (fit.irt.H.1,
           layout ="tree",
           cardinal = T,
           curvePivot =T,
-          sizeMan =10,
-          sizeMan2 = 1.5,
-          sizeLat = 10,
-          #edge.color = "black",
+          sizeMan =8,#items length
+          sizeMan2 = 2,#items
+          sizeLat = 12,#factors
           thresholds = FALSE,
-          equalizeManifests =T,
-          fade = FALSE,
-          edge.label.cex = .65,
-          exoCov = FALSE)
+          equalizeManifests =F,
+          fade = T,
+          edge.label.cex = .8,
+          exoCov = F,
+          centerLevels = T,
+          # edge.color="black",
+          label.scale=T,
+          label.cex=1.2, #Font of factor and item name
+          residuals=T)
+           #exoVar=FALSE,
+          #fixedStyle=6, #Style of arrow (guide item)
+          #freeStyle=1#Style of arrow (other item), #XKCD = TRUE
 # 3. Close the file
-dev.off()
+# dev.off()
 ```
 
 

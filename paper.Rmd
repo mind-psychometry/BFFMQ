@@ -356,6 +356,10 @@ nonjudge <- validity %>%
 nonreact <- validity %>% 
   dplyr::select( item9 , item19 , item21 , item24 , item29 , item33)
 
+
+
+coefficientalpha::tau.test(nonreact )
+
 EI <- validity %>% 
   dplyr::select(EI1:EI34)
 
@@ -2450,6 +2454,24 @@ dev.off()
 ```
 
 ## Confirmatory Factor Analysis
+
+```{r}
+observe.refit.2 <- IRT %>% 
+  dplyr::select(item1,  item6 , item11 , item15 , item20 , item26 , item31 , item36)
+describe.refit.2 <- IRT %>% 
+  dplyr::select( item7 ,   item27 , item32 , item37)
+awareness.refit.2 <- IRT %>% 
+  dplyr::select(Ritem5 , Ritem8 , Ritem13 , Ritem18 , Ritem23 , Ritem28 , Ritem34)
+nonjudge.refit.2 <- IRT %>% 
+  dplyr::select( Ritem10 ,  Ritem25 , Ritem30, Ritem35 )
+nonreact.refit.2 <- IRT %>% 
+  dplyr::select(item9 , item19 , item21 , item24 , item29 , item33)
+
+
+
+# coefficientalpha::tau.test(nonreact.refit.2 )
+```
+
 
 ```{r CFA-irt, include =F}
 

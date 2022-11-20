@@ -2455,7 +2455,7 @@ dev.off()
 
 ## Confirmatory Factor Analysis
 
-```{r}
+```{r tau-equivalance, include=F}
 observe.refit.2 <- IRT %>% 
   dplyr::select(item1,  item6 , item11 , item15 , item20 , item26 , item31 , item36)
 describe.refit.2 <- IRT %>% 
@@ -2469,7 +2469,20 @@ nonreact.refit.2 <- IRT %>%
 
 
 
-# coefficientalpha::tau.test(nonreact.refit.2 )
+observe_tau<- coefficientalpha::tau.test (observe.refit.2 )
+describe_tau <- coefficientalpha::tau.test(describe.refit.2 )
+awareness_tau <- coefficientalpha::tau.test(awareness.refit.2 )
+nonjudge_tau <- coefficientalpha::tau.test(nonjudge.refit.2 )
+nonreact_tau <- coefficientalpha::tau.test(nonreact.refit.2 )
+
+
+
+observe_omega <- coefficientalpha::omega(observe.refit.2 )
+describe_omega <- coefficientalpha::omega(describe.refit.2 )
+awareness_omega <- coefficientalpha::omega(awareness.refit.2 )
+nonjudge_omega <- coefficientalpha::omega(nonjudge.refit.2 )
+nonreact_omega <- coefficientalpha::omega(nonreact.refit.2 )
+
 ```
 
 

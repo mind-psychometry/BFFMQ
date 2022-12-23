@@ -201,7 +201,7 @@ nvec <- as.numeric(simres$n)
 
 meanRMSE <- rowMeans(sima)
 names(meanRMSE) <- n
-round(meanRMSE, 2)
+round(meanRMSE, 2) #1.34-1.36
 matplot(nvec, log(sima), type = "l", col = 1, lty = 1,
 ylab = "log(RMSE)", xlab = "sample size",
 main = "Graded Response Model", xaxt = "n")
@@ -1134,7 +1134,7 @@ item17.icc <- ggicc(nonjudge.fit.2,3,6)+ggtitle("item17")+apatheme+scale_color_n
 
 
 #item 26 representative OCC
-item26.icc <- ggicc(observe.fit.2,6,6)+ggtitle("Representative OCC: item26")+apatheme+scale_color_npg()+
+item26.icc <- ggicc(observe.fit.2,6,6)+ggtitle("item26")+apatheme+scale_color_npg()+
   scale_y_continuous(breaks=c(0,.5,1), limits = c(0, 1))+theme(legend.position="none")
 
 
@@ -1148,10 +1148,10 @@ icc.legend <- cowplot::get_legend(icc.legends)
 
 problematic_icc <- cowplot::plot_grid(item26.icc,item03.icc,item17.icc,
   item22.icc,item38.icc,item39.icc,
-                               labels = "AUTO",
+                               labels = "auto",
                                align="v",
                                ncol = 3,
-                               label_size = 12,
+                               label_size = 80,
                                label_fontfamily = "sans",
                                label_fontface = "plain")
 
@@ -1851,7 +1851,7 @@ nrow(nonr.personfit_model_misfits)
 nonr.per.fit <- ggplot(nonr.personfit, aes(x=Zh)) + geom_histogram(binwidth=.6,col=I("black"),fill="#B09C8599") + ylim(0,200) + xlim(-4,2)+ geom_vline(xintercept = -2)+
   labs( y="Number of Participants", x = "Zh Statistics:Nonreact")+apatheme
 
-personfit <- cowplot::plot_grid(observe.per.fit, des.per.fit, act.per.fit, nonj.per.fit, nonr.per.fit, labels = "AUTO",ncol=3, label_size = 12,align = "v",
+personfit <- cowplot::plot_grid(observe.per.fit, des.per.fit, act.per.fit, nonj.per.fit, nonr.per.fit, labels = "auto",ncol=3, label_size = 80,align = "v",
                   label_fontface = "plain")
 
 ggsave("Figures/PNG/Fig5.png",personfit, units = "mm", width = 174, height = 117, dpi = 600, bg = "white")
@@ -1989,7 +1989,7 @@ TIC.plot <- cowplot::plot_grid(observe.TIC.1,describe.TIC.1, awareness.TIC.1,
                    labels = "auto",
                      align="v",
                      ncol = 3,
-                     label_size = 90,
+                     label_size = 80,
                      # label_fontfamily = "Arial",
                      label_fontface = "plain")
 ggsave("Figures/PNG/Fig6.png",TIC.plot, units = "mm", width = 174, height = 150, dpi = 600, bg = "white")
@@ -2952,20 +2952,6 @@ We recommend some works for future researchers. First, geographically the scope 
 
 
 
-
-```{r Regression, eval=FALSE, include=FALSE}
-library(lessR)
-
-EI.regression <- lessR::Regression(EI ~ Observe + Describe +	Awareness  +	Nonjudge +	Nonreact, data =validity.cor )
-Depression.regression <- lessR::Regression(EI ~ Depression + Describe +	Awareness  +	Nonjudge +	Nonreact, data =validity.cor )
-MASS.regression <- lessR::Regression(MASS ~ Depression + Describe +	Awareness  +	Nonjudge +	Nonreact, data =validity.cor)
-Openness.regression <- lessR::Regression(Openness ~ Depression + Describe +	Awareness  +	Nonjudge +	Nonreact, data =validity.cor )
-Extraversion.regression <- lessR::Regression(Extraversion ~ Depression + Describe +	Awareness  +	Nonjudge +	Nonreact, data =validity.cor )
-Neurotic.regression <- lessR::Regression(Neurotic ~ Depression + Describe +	Awareness  +	Nonjudge +	Nonreact, data =validity.cor )
-
-
- 
-```
 
 
 
